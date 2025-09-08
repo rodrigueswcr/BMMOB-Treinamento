@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <base href="/BMMOB-Treinamento/">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login BM</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f1f1f1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background-color: #e6e6e6;
+      width: 90%;
+      max-width: 360px;
+      border-radius: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      text-align: center;
+      padding: 20px;
+    }
+
+    .container img {
+      width: 140px;
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 15px;
+      text-align: left;
+    }
+
+    .input-group label {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      transition: 0.3s;
+    }
+
+    .input-group input:focus {
+      border-color: #00796b;
+      outline: none;
+      box-shadow: 0 0 5px rgba(0, 121, 107, 0.5);
+    }
+
+    .btn-acessar {
+      width: 100%;
+      padding: 14px;
+      background-color: #00796b;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+      transition: 0.3s;
+    }
+
+    .btn-acessar:hover {
+      background-color: #00695c;
+    }
+
+    .version {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #555;
+    }
+
+    .senha-invalida {
+      color: red;
+      font-size: 12px;
+      margin-top: 5px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="https://www.brigadamilitar.rs.gov.br/upload/arquivos/202204/14110016-brasao-da-brigada-militar.png" alt="BM Logo">
+
+    <form id="loginForm">
+      <div class="input-group">
+        <label>Organização</label>
+        <input type="text" value="BM" readonly>
+      </div>
+
+      <div class="input-group">
+        <label>Matrícula</label>
+        <input type="text" id="matricula" maxlength="9" pattern="\d{9}" title="Digite exatamente 9 números">
+      </div>
+
+      <div class="input-group">
+        <label>Senha</label>
+        <input type="password" id="senha">
+        <span class="senha-invalida" id="senhaAviso">Senha inválida.</span>
+      </div>
+
+      <button class="btn-acessar" type="submit">ACESSAR</button>
+    </form>
+
+    <div class="version">Versão atual: 2.9.4</div>
+  </div>
+
+  <script>
+    const matriculaInput = document.getElementById('matricula');
+    matriculaInput.addEventListener('input', () => {
+      matriculaInput.value = matriculaInput.value.replace(/\D/g, '');
+    });
+
+    const form = document.getElementById('loginForm');
+    const senhaInput = document.getElementById('senha');
+    const senhaAviso = document.getElementById('senhaAviso');
+
+    form.addEventListener('submit', function(e) {
+      const senhaValida = "ESFES-OSORIO";
+
+      if (senhaInput.value !== senhaValida) {
+        e.preventDefault();
+        senhaAviso.style.display = "block";
+        senhaInput.value = "";
+        senhaInput.focus();
+      } else {
+        e.preventDefault(); // evita envio do form
+        senhaAviso.style.display = "none";
+        // abre a nova tela boletim.html
+        window.location.href="boletim.html";
+      }
+    });
+  </script>
+</body>
+</html>

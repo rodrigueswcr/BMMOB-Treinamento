@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <base href="/BMMOB-Treinamento/">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fato - BA</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; font-family: Arial, sans-serif; background-color: #f1f1f1;
+      display: flex; justify-content: center; align-items: center; min-height: 100dvh;
+    }
+    .container { background-color: #fff; width: 100%; max-width: 400px; height: 100dvh; display: flex; flex-direction: column; }
+    .topbar { background-color: #333; color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; font-weight: bold; flex-shrink: 0; }
+    .topbar .title { text-transform: uppercase; letter-spacing: .5px; }
+    .topbar img { width: 22px; height: 22px; cursor: pointer; }
+    .content { flex: 1; overflow-y: auto; padding: 4px 16px 0 16px; }
+    select.form-select { width: 100%; display: block; padding: 8px; padding-right: 28px; border-radius: 6px; border: 1px solid #ccc; margin: 12px 0; font-size: 14px; background: #fff; text-transform: uppercase; text-align-last: center; -moz-text-align-last: center; text-align: center; }
+    select.form-select.is-placeholder { color: #d00; }
+    select.form-select option:first-child { color: #d00; }
+    .forma-row { display: flex; align-items: center; gap: 24px; justify-content: center; margin: 8px 0 12px 0; font-size: 14px; }
+    .forma-row label { display: inline-flex; align-items: center; gap: 6px; font-weight: normal; }
+    .center-title { text-align: center; font-weight: bold; color: #333; margin: 12px 0 6px 0; text-transform: uppercase; font-size: 13px; }
+    .date-line { margin: 8px 0; font-size: 14px; color: #111; text-align: center; cursor: pointer; }
+    .date-line.hint { color: #777; }
+    .divider { height: 1px; background: #e5e5e5; margin: 8px 0; }
+    .btn-primary { margin: 16px 0; width: 100%; background-color: #2f6f73; color: #fff; border: none; border-radius: 6px; padding: 12px 16px; font-weight: bold; letter-spacing: .3px; cursor: pointer; }
+    .btn-primary:active { transform: scale(0.99); }
+
+    /* FOOTER padronizado */
+    .footer { display: flex; justify-content: space-around; background-color: #2f6f73; padding: 10px 0; flex-shrink: 0; }
+    .footer img { cursor: pointer; width: 28px; height: 28px; transition: .2s; filter: grayscale(30%) brightness(0.9); }
+    .footer img:hover { width: 32px; height: 32px; filter: grayscale(0%) brightness(1.2); }
+    .footer img.active { filter: grayscale(0%) brightness(1.1) contrast(1.0); }
+
+    /* Painel FATO (tabela com busca) */
+    .fato-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none; align-items: center; justify-content: center; z-index: 9999; }
+    .fato-sheet { width: 100%; max-width: 400px; height: 90vh; background: #fff; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 12px 32px rgba(0,0,0,.25); }
+    .fato-header { background: #3a3a3a; color: #fff; padding: 10px 12px; font-weight: bold; display: flex; align-items: center; justify-content: space-between; }
+    .fato-close { background: transparent; border: 0; color: #fff; font-size: 18px; cursor: pointer; }
+    .fato-search { padding: 10px 12px; background: #f4f4f4; }
+    .fato-search input { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; background: #fff; }
+    .fato-table-wrap { flex: 1; overflow: auto; }
+    table.fato-table { width: 100%; border-collapse: collapse; }
+    table.fato-table thead th { position: sticky; top: 0; background: #fff; border-bottom: 1px solid #e5e5e5; font-size: 12px; color: #666; text-align: left; padding: 8px 10px; }
+    table.fato-table tbody tr { border-bottom: 1px solid #eee; cursor: pointer; }
+    table.fato-table td { padding: 8px 10px; font-size: 13px; vertical-align: middle; }
+    table.fato-table tbody tr:hover { background: #f7fafa; }
+    .col-cod { width: 30%; white-space: nowrap; }
+    .col-desc { width: 50%; text-transform: uppercase; }
+    .col-tc { width: 20%; text-align: right; color: #333; }
+
+    /* Seletor manual de data/hora */
+    .picker-wrap { margin-top: 10px; display: none; }
+    .picker-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; align-items: start; }
+    .picker-col { display: flex; flex-direction: column; align-items: center; }
+    .picker-select { width: 100%; font-size: 14px; text-align: center; border: none; outline: none; background: transparent; -webkit-appearance: none; appearance: none; padding: 4px 0; }
+    .picker-actions { margin-top: 8px; display: flex; gap: 8px; justify-content: flex-end; }
+    .btn-ok { padding: 6px 10px; border: none; border-radius: 6px; background-color: #4d7c7b; color: #fff; font-weight: bold; cursor: pointer; }
+
+    /* Label fixo do campo FATO */
+    .fato-field { display: flex; flex-direction: column; align-items: center; margin: 12px 0; }
+    .fato-label { font-size: 13px; font-weight: bold; color: #111; text-transform: uppercase; text-align: center; margin-bottom: 4px; }
+
+    /* PAGER — bolinhas clicáveis */
+    .pager-dots { display:flex; justify-content:center; align-items:center; gap:8px; padding:6px 0 2px 0; }
+    .pager-dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:#cdd2d3; }
+    .pager-dot.active { background:#2f6f73; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <img src="img/back.png" alt="Voltar" onclick="window.location.href='registrar.html'">
+      <div class="title">BOLETIM</div>
+      <img src="img/check.png" alt="Avançar" onclick="salvarFato()">
+    </div>
+
+    <div class="content">
+      <!-- Select FATO -->
+      <div class="fato-field">
+        <div class="fato-label"><span style="color:red">*</span> FATO</div>
+        <select id="fato" class="form-select" required>
+          <option value="" disabled selected>Selecione...</option>
+        </select>
+      </div>
+
+      <!-- FORMA -->
+      <div class="center-title"><span style="color:red">*</span> FORMA</div>
+      <div class="forma-row">
+        <label><input type="radio" name="forma" value="Tentado"> Tentado</label>
+        <label><input type="radio" name="forma" value="Consumado"> Consumado</label>
+      </div>
+
+      <!-- Início -->
+      <div class="center-title">Início</div>
+      <div class="date-line" id="inicioTxt" title="Clique para definir manualmente"></div>
+      <div id="seletorInicio" class="picker-wrap" aria-hidden="true">
+        <div class="picker-container">
+          <div class="picker-col"><select id="diaI" class="picker-select" size="5"></select></div>
+          <div class="picker-col"><select id="mesI" class="picker-select" size="5"></select></div>
+          <div class="picker-col"><select id="anoI" class="picker-select" size="5"></select></div>
+          <div class="picker-col"><select id="horaI" class="picker-select" size="5"></select></div>
+          <div class="picker-col"><select id="minI" class="picker-select" size="5"></select></div>
+        </div>
+        <div class="picker-actions"><button class="btn-ok" onclick="confirmarInicio()">OK</button></div>
+      </div>
+      <div class="divider"></div>
+
+      <!-- Fim -->
+      <div class="center-title">Fim</div>
+      <div class="date-line hint" id="fimTxt" title="Clique para definir manualmente">—</div>
+      <div id="seletorFim" class="picker-wrap" aria-hidden="true">
+        <div class="picker-container">
+          <div class="picker-col"><select id="diaF" class="picker-select" size="5"></select></div>
+          <div class="picker-col"><select id="mesF" class="picker-select" size="5"></select></div>
+          <div class="picker-col"><select id="anoF" class="picker-select" size="5"></select></div>
+          <div class="picker-col"><select id="horaF" class="picker-select" size="5"></select></div>
+          <div class="picker-col"><select id="minF" class="picker-select" size="5"></select></div>
+        </div>
+        <div class="picker-actions"><button class="btn-ok" onclick="confirmarFim()">OK</button></div>
+      </div>
+      <div class="divider"></div>
+
+      <button class="btn-primary" id="btnFatos">FATOS COMPLEMENTARES</button>
+    </div>
+
+    <!-- Pager unificado -->
+    <div class="pager-dots" aria-label="Progresso">
+      <a class="pager-dot" href="registrar.html" title="Registrar"></a>
+      <a class="pager-dot active" href="fato-ba.html" title="Fato"></a>
+      <a class="pager-dot" href="localizacao.html" title="Localização"></a>
+      <a class="pager-dot" href="historico.html" title="Histórico"></a>
+    </div>
+
+    <div class="footer" id="footer">
+      <img src="img/doc.png" alt="Boletim" class="active">
+      <img src="img/user.png" alt="Indivíduo">
+      <img src="img/car.png" alt="Veículo">
+      <img src="img/gun.png" alt="Arma">
+      <img src="img/doc.png" alt="Outros">
+    </div>
+  </div>
+
+  <!-- Painel FATO -->
+  <div class="fato-overlay" id="fatoOverlay" role="dialog" aria-modal="true">
+    <div class="fato-sheet">
+      <div class="fato-header">
+        <div>Fato</div>
+        <button class="fato-close" id="btnCloseFato">✕</button>
+      </div>
+      <div class="fato-search"><input id="fatoSearch" placeholder="Pesquisa" autocomplete="off"></div>
+      <div class="fato-table-wrap">
+        <table class="fato-table" aria-label="Lista de Fatos">
+          <thead>
+            <tr><th class="col-cod">Código</th><th class="col-desc">Descrição</th><th class="col-tc">Gera TC</th></tr>
+          </thead>
+          <tbody id="fatoTbody"></tbody>
+        </table>
+        <div id="fatoEmpty" class="empty-msg" style="display:none">Nenhum fato encontrado…</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Footer selecionável (efeito visual apenas)
+    (function footerSelectable(){
+      const icons=document.querySelectorAll('#footer img');
+      icons.forEach(img=>img.addEventListener('click',()=>{
+        icons.forEach(i=>i.classList.remove('active')); img.classList.add('active');
+      }));
+    })();
+
+    function pad2(n){ return String(n).padStart(2,'0'); }
+    function diasNoMes(ano, mes1a12){ return new Date(ano, mes1a12, 0).getDate(); }
+    function toDisplay(dt){ return `${pad2(dt.getDate())}/${pad2(dt.getMonth()+1)}/${dt.getFullYear()} ${pad2(dt.getHours())}:${pad2(dt.getMinutes())}`; }
+
+    const FATOS = [
+      { codigo: '2070-23', desc: 'ABANDONO DE FUNCAO', tc: false },
+      { codigo: '2088-15', desc: 'ABANDONO DE IDOSO', tc: true },
+      { codigo: '2050-15', desc: 'ABANDONO INTELECTUAL', tc: false },
+      { codigo: '2050-10', desc: 'ABANDONO MATERIAL', tc: false },
+      { codigo: '2125-4',  desc: 'ABUSO DE INCAPAZ', tc: true },
+      { codigo: '9100-22', desc: 'ACIDENTE DE TRABALHO', tc: false },
+      { codigo: '9100-24', desc: 'ACIDENTE DE TRANSITO COM DANOS MATERIAIS', tc: false },
+      { codigo: '9100-32', desc: 'ACIDENTE DE TRANSITO, VEICULO OFICIAL COM DANOS', tc: false },
+      { codigo: '9100-31', desc: 'ACIDENTE DE TRANSITO, VEICULO OFICIAL COM LESOES', tc: true },
+      { codigo: '2065-9',  desc: 'ADULTERACAO DE SINAL IDENTIFICADOR DE VEICULO', tc: false },
+      { codigo: '2025-69', desc: 'OUTROS ROUBOS', tc: false },
+      { codigo: '2025-42', desc: 'ROUBO A CASA LOTÉRICA', tc: false },
+      { codigo: '2025-95', desc: 'ROUBO A ESTABELEC. DE ENSINO', tc: false },
+      { codigo: '2025-63', desc: 'ROUBO A ESTABELECIMENTO BANCÁRIO', tc: false },
+      { codigo: '2025-64', desc: 'ROUBO A ESTABELECIMENTO COM LESÕES', tc: false },
+    ];
+
+    const selFato = document.getElementById('fato');
+    const overlay = document.getElementById('fatoOverlay');
+    const tbody = document.getElementById('fatoTbody');
+    const search = document.getElementById('fatoSearch');
+    const emptyMsg = document.getElementById('fatoEmpty');
+    const btnCloseFato = document.getElementById('btnCloseFato');
+
+    // Chaves de persistência
+    const SS = { fato:'fatoSelecionado', forma:'formaSelecionada', inicio:'inicioDateISO', fim:'fimDateISO' };
+
+    function updatePlaceholderStyle(){ selFato.classList.toggle('is-placeholder', !selFato.value); }
+    function preencherSelectFato(){
+      selFato.length = 1;
+      FATOS.forEach(f => {
+        const opt = document.createElement('option');
+        opt.value = f.desc; opt.textContent = f.desc;
+        selFato.appendChild(opt);
+      });
+      updatePlaceholderStyle();
+    }
+    selFato.addEventListener('mousedown', e=>{ e.preventDefault(); abrirPainelFato(); });
+    selFato.addEventListener('keydown', e=>{
+      if (['Enter',' ','Spacebar','ArrowDown','ArrowUp'].includes(e.key)) { e.preventDefault(); abrirPainelFato(); }
+    });
+    function abrirPainelFato(){ overlay.style.display = 'flex'; search.value=''; renderTabela(FATOS); search.focus(); }
+    function fecharPainelFato(){ overlay.style.display = 'none'; }
+    btnCloseFato.addEventListener('click', fecharPainelFato);
+    overlay.addEventListener('click', e=>{ if(e.target===overlay) fecharPainelFato(); });
+
+    function renderTabela(lista){
+      tbody.innerHTML = '';
+      if (!lista.length){ emptyMsg.style.display='block'; return; }
+      emptyMsg.style.display='none';
+      lista.forEach(item=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td class="col-cod">${item.codigo}</td><td class="col-desc">${item.desc}</td><td class="col-tc">${item.tc?'Sim':'Não'}</td>`;
+        tr.addEventListener('click', ()=>{ selFato.value=item.desc; updatePlaceholderStyle(); sessionStorage.setItem(SS.fato,item.desc); fecharPainelFato(); });
+        tbody.appendChild(tr);
+      });
+    }
+    search.addEventListener('input', ()=>{
+      const q = search.value.trim().toLowerCase();
+      const flt = FATOS.filter(f => f.codigo.toLowerCase().includes(q) || f.desc.toLowerCase().includes(q) || (f.tc?'sim':'não').includes(q.replace('nao','não')));
+      renderTabela(flt);
+    });
+
+    const inicioTxt = document.getElementById('inicioTxt');
+    const fimTxt = document.getElementById('fimTxt');
+    const seletorInicio = document.getElementById('seletorInicio');
+    const seletorFim = document.getElementById('seletorFim');
+    const diaI = document.getElementById('diaI'), mesI = document.getElementById('mesI'), anoI = document.getElementById('anoI'), horaI = document.getElementById('horaI'), minI = document.getElementById('minI');
+    const diaF = document.getElementById('diaF'), mesF = document.getElementById('mesF'), anoF = document.getElementById('anoF'), horaF = document.getElementById('horaF'), minF = document.getElementById('minF');
+
+    let usandoManualInicio=false, usandoManualFim=false;
+    let inicioDate = new Date(), fimDate = null;
+
+    function preencherSelect(el, de, ate, sel){ el.innerHTML=''; for(let i=de;i<=ate;i++){ const o=document.createElement('option'); o.value=i; o.textContent=(i<10?'0'+i:String(i)); if(String(i)===String(sel)) o.selected=true; el.appendChild(o);} }
+    function atualizarInicioAutomatico(){ if(usandoManualInicio) return; const a=new Date(); inicioDate=a; inicioTxt.textContent=toDisplay(inicioDate); }
+    atualizarInicioAutomatico(); setInterval(atualizarInicioAutomatico, 60000);
+
+    function abrirSeletorInicio(){
+      seletorInicio.style.display='block'; seletorInicio.setAttribute('aria-hidden','false');
+      const d=inicioDate; const ano=new Date().getFullYear();
+      preencherSelect(anoI, ano-5, ano+5, d.getFullYear());
+      preencherSelect(mesI,1,12,d.getMonth()+1);
+      preencherSelect(diaI,1,diasNoMes(d.getFullYear(),d.getMonth()+1),d.getDate());
+      preencherSelect(horaI,0,23,d.getHours());
+      preencherSelect(minI,0,59,d.getMinutes());
+    }
+    function confirmarInicio(){
+      const y=Number(anoI.value||new Date().getFullYear());
+      const m=Number(mesI.value||1);
+      const dd=Math.min(Number(diaI.value||1), diasNoMes(y,m));
+      const hh=Number(horaI.value||0);
+      const mm=Number(minI.value||0);
+      const esc=new Date(y,m-1,dd,hh,mm,0,0);
+      const agora=new Date();
+      if(esc>agora){ alert('A data/hora de INÍCIO deve ser pretérita ou igual ao momento da comunicação.'); }
+      else {
+        inicioDate=esc; inicioTxt.textContent=toDisplay(inicioDate); usandoManualInicio=true;
+        sessionStorage.setItem(SS.inicio, inicioDate.toISOString());
+        if(fimDate && fimDate<inicioDate){ fimDate=null; fimTxt.textContent='—'; fimTxt.classList.add('hint'); usandoManualFim=false; sessionStorage.removeItem(SS.fim); }
+      }
+      seletorInicio.style.display='none'; seletorInicio.setAttribute('aria-hidden','true');
+    }
+    function abrirSeletorFim(){
+      seletorFim.style.display='block'; seletorFim.setAttribute('aria-hidden','false');
+      const base=fimDate||new Date(Math.max(inicioDate.getTime(), Date.now()));
+      const ano=new Date().getFullYear();
+      preencherSelect(anoF, ano-5, ano+5, base.getFullYear());
+      preencherSelect(mesF,1,12,base.getMonth()+1);
+      preencherSelect(diaF,1,diasNoMes(base.getFullYear(),base.getMonth()+1),base.getDate());
+      preencherSelect(horaF,0,23,base.getHours());
+      preencherSelect(minF,0,59,base.getMinutes());
+    }
+    function confirmarFim(){
+      const y=Number(anoF.value||new Date().getFullYear());
+      const m=Number(mesF.value||1);
+      const dd=Math.min(Number(diaF.value||1), diasNoMes(y,m));
+      const hh=Number(horaF.value||0);
+      const mm=Number(minF.value||0);
+      const esc=new Date(y,m-1,dd,hh,mm,0,0);
+      if(esc<inicioDate){ alert('A data/hora de FIM não pode ser anterior ao INÍCIO.'); }
+      else { fimDate=esc; fimTxt.textContent=toDisplay(fimDate); fimTxt.classList.remove('hint'); usandoManualFim=true; sessionStorage.setItem(SS.fim, fimDate.toISOString()); }
+      seletorFim.style.display='none'; seletorFim.setAttribute('aria-hidden','true');
+    }
+    inicioTxt.addEventListener('click', abrirSeletorInicio);
+    fimTxt.addEventListener('click', abrirSeletorFim);
+
+    (function restoreInicio(){ const iso=sessionStorage.getItem(SS.inicio); if(!iso)return; const d=new Date(iso); if(!isNaN(d)){ inicioDate=d; inicioTxt.textContent=toDisplay(inicioDate); usandoManualInicio=true; }})();
+    (function restoreFim(){ const iso=sessionStorage.getItem(SS.fim); if(!iso)return; const d=new Date(iso); if(!isNaN(d)){ fimDate=d; fimTxt.textContent=toDisplay(fimDate); fimTxt.classList.remove('hint'); usandoManualFim=true; }})();
+
+    function restoreFatoForma(){
+      const fatoS = sessionStorage.getItem(SS.fato);
+      if (fatoS){ selFato.value=fatoS; if(!selFato.value){ const o=document.createElement('option'); o.value=fatoS; o.textContent=fatoS; selFato.appendChild(o); selFato.value=fatoS; } updatePlaceholderStyle(); }
+      const formaS = sessionStorage.getItem(SS.forma);
+      if (formaS){ const radio=document.querySelector(`input[name="forma"][value="${formaS}"]`); if(radio) radio.checked=true; }
+    }
+    restoreFatoForma();
+
+    selFato.addEventListener('change', ()=>{ sessionStorage.setItem(SS.fato, selFato.value || ''); updatePlaceholderStyle(); });
+    document.querySelectorAll('input[name="forma"]').forEach(r=>{ r.addEventListener('change', ()=>{ if(r.checked) sessionStorage.setItem(SS.forma, r.value); }); });
+
+    function getFatosComplementaresCount(){
+      try { const arr = JSON.parse(sessionStorage.getItem('fatosComplementares') || '[]'); return Array.isArray(arr) ? arr.length : 0; }
+      catch(e){ return 0; }
+    }
+    function atualizarBadgeFatos(){
+      const btn = document.getElementById('btnFatos');
+      const n = getFatosComplementaresCount();
+      btn.textContent = 'FATOS COMPLEMENTARES' + (n > 0 ? ` (${n})` : '');
+    }
+    window.addEventListener('pageshow', atualizarBadgeFatos);
+
+    function salvarFato(){
+      const fatoVal = selFato.value;
+      const forma = document.querySelector('input[name="forma"]:checked');
+      if (!fatoVal) { alert('Selecione o FATO.'); selFato.focus(); return; }
+      if (!forma) { alert('Selecione a FORMA.'); return; }
+      if (inicioDate > new Date()) { alert('A data/hora de INÍCIO deve ser pretérita ou igual ao momento da comunicação.'); return; }
+      if (fimDate && fimDate < inicioDate) { alert('A data/hora de FIM não pode ser anterior ao INÍCIO.'); return; }
+      sessionStorage.setItem(SS.fato, fatoVal);
+      sessionStorage.setItem(SS.forma, forma.value);
+      sessionStorage.setItem(SS.inicio, inicioDate.toISOString());
+      if (fimDate) sessionStorage.setItem(SS.fim, fimDate.toISOString()); else sessionStorage.removeItem(SS.fim);
+      window.location.href='localizacao.html';
+    }
+    window.salvarFato = salvarFato;
+
+    document.getElementById('btnFatos').addEventListener('click', () => {
+      const fatoVal = selFato.value;
+      const forma = document.querySelector('input[name="forma"]:checked');
+      if (!fatoVal) { alert('Selecione o FATO.'); return; }
+      if (!forma)  { alert('Selecione a FORMA.'); return; }
+      sessionStorage.setItem(SS.fato, fatoVal);
+      sessionStorage.setItem(SS.forma, forma.value);
+      if (inicioDate) sessionStorage.setItem(SS.inicio, inicioDate.toISOString()); else sessionStorage.removeItem(SS.inicio);
+      if (fimDate)    sessionStorage.setItem(SS.fim, fimDate.toISOString());     else sessionStorage.removeItem(SS.fim);
+      window.location.href='fatos-complementares.html';
+    });
+
+    // Salvar antes de trocar via pager
+    document.querySelectorAll('.pager-dots a').forEach(a=>{
+      a.addEventListener('click', ()=> {
+        const fatoVal = selFato.value || '';
+        const forma = document.querySelector('input[name="forma"]:checked');
+        if (fatoVal) sessionStorage.setItem(SS.fato, fatoVal);
+        if (forma)   sessionStorage.setItem(SS.forma, forma.value);
+        if (inicioDate) sessionStorage.setItem(SS.inicio, inicioDate.toISOString());
+        if (fimDate)    sessionStorage.setItem(SS.fim, fimDate.toISOString());
+      });
+    });
+
+    window.addEventListener('beforeunload', ()=>{
+      const fatoVal = selFato.value || '';
+      const forma = document.querySelector('input[name="forma"]:checked');
+      if (fatoVal) sessionStorage.setItem(SS.fato, fatoVal);
+      if (forma)   sessionStorage.setItem(SS.forma, forma.value);
+      if (inicioDate) sessionStorage.setItem(SS.inicio, inicioDate.toISOString());
+      if (fimDate)    sessionStorage.setItem(SS.fim, fimDate.toISOString());
+    });
+
+    preencherSelectFato(); updatePlaceholderStyle(); atualizarBadgeFatos();
+  </script>
+</body>
+</html>

@@ -1,0 +1,605 @@
+<!DOCTYPE html> 
+<html lang="pt-BR">
+<head>
+  <base href="/BMMOB-Treinamento/">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Viatura</title>
+  <style>
+    *{box-sizing:border-box}
+    html, body { height:100%; }
+    body{
+      margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f1f1;
+      display:flex;justify-content:center;align-items:center;height:100vh;
+    }
+
+    .container{
+      background:#fff;width:100%;max-width:400px;height:100%;
+      display:flex;flex-direction:column;
+    }
+
+    .topbar{
+      background:#333;color:#fff;display:flex;align-items:center;justify-content:space-between;
+      padding:10px 12px;font-weight:bold;flex-shrink:0;
+    }
+    .topbar .title{ text-transform:uppercase; letter-spacing:.5px; }
+    .topbar img{ width:22px;height:22px;cursor:pointer; }
+
+    .content{flex:1;overflow-y:auto;padding:4px 16px 0 16px}
+
+    /* Campos básicos */
+    label{display:block;font-size:12px;color:#2f6f73;margin:8px 0 4px}
+    .req::before{content:"* ";color:#d00;font-weight:bold}
+    input,select{
+      width:100%;padding:10px 12px;border:1px solid #ccc;border-radius:6px;
+      background:#fff;font-size:14px;outline:none
+    }
+    input:focus,select:focus{border-color:#888}
+
+    /* Função da viatura: nome antes, seleção depois */
+    .role-options{ display:flex; gap:90px; margin:8px 0 10px; }
+    .role-options label{ display:inline-flex; align-items:center; gap:50px; font-size:14px; cursor:pointer; }
+    .role-options label span{ color:#9aa0a6; }
+    .role-options label:has(input:checked) span{ color:#222; }
+    .role-options input[type="radio"]{ margin:0; }
+    @media (pointer: coarse) { .role-options { gap:64px; } .role-options label { gap:12px; } }
+
+    /* Linhas “flat” */
+    .field-row{ display:flex; align-items:center; justify-content:space-between; padding:14px 0; border-bottom:1px solid #f2f2f2; }
+    .field-label{ font-size:13px; color:#7a7a7a; display:flex; align-items:center; gap:6px; }
+    .req-dot{ color:#d00; font-weight:bold; }
+    .field-value{ font-size:14px; color:#6b6f76; text-align:right; cursor:pointer; }
+    .field-value.hint{ color:#9aa0a6; }
+    .field-value.active{ color:#222; }
+
+    /* Quilometragem sem borda */
+    .km-values{ display:flex; align-items:center; gap:20px; }
+    .input-plain{ width:100px; min-width:84px; border:none; background:transparent; padding:0; margin:0; font-size:14px; color:#222; text-align:right; outline:none; }
+    .input-plain::placeholder{ color:#9aa0a6; }
+
+    /* Picker manual */
+    .picker-wrap{ margin-top:10px; display:none; }
+    .picker-container{ display:grid; grid-template-columns: repeat(5, 1fr); gap:6px; align-items:start; }
+    .picker-col{ display:flex; flex-direction:column; align-items:center; }
+    .picker-select{ width:100%; font-size:14px; text-align:center; border:none; outline:none; background:transparent; -webkit-appearance:none; appearance:none; padding:4px 0; }
+    .picker-actions{ margin-top:8px; display:flex; gap:8px; justify-content:flex-end; }
+    .btn-ok{ padding:6px 10px; border:none; border-radius:6px; background-color:#4d7c7b; color:#fff; font-weight:bold; cursor:pointer; }
+
+    .btn-primary{ margin:18px 0; width:100%; background-color:#2f6f73; color:#fff; border:none; border-radius:6px; padding:12px 16px; font-weight:bold; letter-spacing:.3px; cursor:pointer; }
+    .btn-primary:active{ transform:scale(0.99); }
+
+    /* Lista no estilo fatos-complementares */
+    .vi-list{ display:flex; flex-direction:column; gap:10px; margin:8px 0 16px; }
+    .vi-card{
+      display:flex; align-items:center; justify-content:space-between;
+      background:#f7f7f7; border:1px solid #e3e6e8; border-radius:8px;
+      padding:10px 12px; box-shadow:0 1px 0 rgba(0,0,0,.02);
+    }
+    .vi-title{
+      margin:0; font-size:13px; color:#2f2f2f; letter-spacing:.2px;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding-right:12px;
+    }
+    .vi-actions{ display:flex; gap:8px; }
+    .icon-btn{
+      width:30px;             /* dobrado */
+      height:30px;            /* dobrado */
+      display:flex; align-items:center; justify-content:center;
+      background:#fff; border:1px solid #d7dbe0; border-radius:4px; cursor:pointer;
+    }
+    .icon-btn img{
+      width:27px;             /* dobrado */
+      height:27px;            /* dobrado */
+      display:block;
+    }
+
+    .footer{ display:flex; justify-content:space-around; background-color:#2f6f73; padding:10px 0; flex-shrink:0; }
+    .footer img{ cursor:pointer; width:28px; height:28px; transition:.2s; filter:grayscale(30%) brightness(0.9); }
+    .footer img:hover{ width:32px; height:32px; filter:grayscale(0%) brightness(1.2); }
+    .footer img.active{ filter:grayscale(0%) brightness(1.1) contrast(1.0); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <img src="img/back.png" alt="Voltar" id="btnBack">
+      <div class="title">VIATURA</div>
+      <!-- Spacer para manter o título centralizado após remover o check -->
+      <div style="width:22px;height:22px;"></div>
+    </div>
+
+    <div class="content">
+      <!-- Prefixo -->
+      <label class="req" for="prefixo">Prefixo</label>
+      <input id="prefixo" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="" maxlength="10">
+
+      <!-- Função da viatura -->
+      <div class="field">
+        <div class="role-options">
+          <label>
+            <span>Atendente</span>
+            <input type="radio" name="funcao_viatura" value="atendente" required>
+          </label>
+          <label>
+            <span>Apoio</span>
+            <input type="radio" name="funcao_viatura" value="apoio">
+          </label>
+        </div>
+      </div>
+
+      <!-- Inicial (único com asterisco) -->
+      <div class="field-row">
+        <div class="field-label"><span class="req-dot">*</span> Inicial</div>
+        <div class="field-value active" id="inicioTxt" title="Clique para definir manualmente"></div>
+      </div>
+      <div id="seletorInicio" class="picker-wrap" aria-hidden="true">
+        <div class="picker-container">
+          <div class="picker-col"><select id="diaI"  class="picker-select" size="5"></select></div>
+          <div class="picker-col"><select id="mesI"  class="picker-select" size="5"></select></div>
+          <div class="picker-col"><select id="anoI"  class="picker-select" size="5"></select></div>
+          <div class="picker-col"><select id="horaI" class="picker-select" size="5"></select></div>
+          <div class="picker-col"><select id="minI"  class="picker-select" size="5"></select></div>
+        </div>
+        <div class="picker-actions"><button class="btn-ok" onclick="confirmarInicio()">OK</button></div>
+      </div>
+
+      <!-- Chegada -->
+      <div class="field-row">
+        <div class="field-label">Chegada</div>
+        <div class="field-value hint" id="chegadaTxt" title="Clique para definir manualmente">Data/Hora</div>
+      </div>
+      <div id="seletorChegada" class="picker-wrap" aria-hidden="true">
+        <div class="picker-container">
+          <div class="picker-col"><select id="diaCH"  class="picker-select" size="5"></select></div>
+          <div class="picker-col"><select id="mesCH"  class="picker-select" size="5"></select></div>
+          <div class="picker-col"><select id="anoCH"  class="picker-select" size="5"></select></div>
+          <div class="picker-col"><select id="horaCH" class="picker-select" size="5"></select></div>
+          <div class="picker-col"><select id="minCH"  class="picker-select" size="5"></select></div>
+        </div>
+        <div class="picker-actions"><button class="btn-ok" onclick="confirmarChegada()">OK</button></div>
+      </div>
+
+      <!-- Chegada DP -->
+      <div class="field-row">
+        <div class="field-label">Chegada DP</div>
+        <div class="field-value hint" id="dpTxt" title="Clique para definir manualmente">Data/Hora</div>
+      </div>
+      <div id="seletorDP" class="picker-wrap" aria-hidden="true">
+        <div class="picker-container">
+          <div class="picker-col"><select id="diaDP"  class="picker-select" size="5"></select></div>
+          <div class="picker-col"><select id="mesDP"  class="picker-select" size="5"></select></div>
+          <div class="picker-col"><select id="anoDP"  class="picker-select" size="5"></select></div>
+          <div class="picker-col"><select id="horaDP" class="picker-select" size="5"></select></div>
+          <div class="picker-col"><select id="minDP"  class="picker-select" size="5"></select></div>
+        </div>
+        <div class="picker-actions"><button class="btn-ok" onclick="confirmarDP()">OK</button></div>
+      </div>
+
+      <!-- Final -->
+      <div class="field-row">
+        <div class="field-label">Final</div>
+        <div class="field-value hint" id="finalTxt" title="Clique para definir manualmente">Data/Hora</div>
+      </div>
+      <div id="seletorFinal" class="picker-wrap" aria-hidden="true">
+        <div class="picker-container">
+          <div class="picker-col"><select id="diaF"  class="picker-select" size="5"></select></div>
+          <div class="picker-col"><select id="mesF"  class="picker-select" size="5"></select></div>
+          <div class="picker-col"><select id="anoF"  class="picker-select" size="5"></select></div>
+          <div class="picker-col"><select id="horaF" class="picker-select" size="5"></select></div>
+          <div class="picker-col"><select id="minF"  class="picker-select" size="5"></select></div>
+        </div>
+        <div class="picker-actions"><button class="btn-ok" onclick="confirmarFinal()">OK</button></div>
+      </div>
+
+      <!-- Quilometragem -->
+      <div class="field-row">
+        <div class="field-label">Quilometragem</div>
+        <div class="km-values">
+          <input id="kmInicial" class="input-plain" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Inicial">
+          <input id="kmFinal"   class="input-plain" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Final">
+        </div>
+      </div>
+
+      <button class="btn-primary" id="btnAdicionar">ADICIONAR</button>
+
+      <!-- Lista ao estilo fatos-complementares -->
+      <div id="viList" class="vi-list"></div>
+    </div>
+
+    <div class="footer">
+      <img src="img/doc.png" alt="Boletim" class="active">
+      <img src="img/user.png" alt="Indivíduo">
+      <img src="img/car.png" alt="Veículo">
+      <img src="img/gun.png" alt="Arma">
+      <img src="img/doc.png" alt="Outros">
+    </div>
+  </div>
+
+  <script>
+    /* ===== Utilidades ===== */
+    function pad2(n){ return String(n).padStart(2,'0'); }
+    function diasNoMes(ano, mes1a12){ return new Date(ano, mes1a12, 0).getDate(); }
+    function toDisplay(dt){ return `${pad2(dt.getDate())}/${pad2(dt.getMonth()+1)}/${dt.getFullYear()} ${pad2(dt.getHours())}:${pad2(dt.getMinutes())}`; }
+    function preencherSelect(el, de, ate, sel){
+      el.innerHTML='';
+      for(let i=de;i<=ate;i++){
+        const o=document.createElement('option');
+        o.value=i; o.textContent=(i<10?'0'+i:String(i));
+        if(String(i)===String(sel)) o.selected=true;
+        el.appendChild(o);
+      }
+    }
+
+    /* ===== Elementos ===== */
+    const prefixo = document.getElementById('prefixo');
+    const papelRadios = document.getElementsByName('funcao_viatura');
+
+    const inicioTxt = document.getElementById('inicioTxt');
+    const seletorInicio = document.getElementById('seletorInicio');
+    const diaI = document.getElementById('diaI'), mesI = document.getElementById('mesI'), anoI = document.getElementById('anoI'), horaI = document.getElementById('horaI'), minI = document.getElementById('minI');
+
+    const chegadaTxt = document.getElementById('chegadaTxt');
+    const seletorChegada = document.getElementById('seletorChegada');
+    const diaCH = document.getElementById('diaCH'), mesCH = document.getElementById('mesCH'), anoCH = document.getElementById('anoCH'), horaCH = document.getElementById('horaCH'), minCH = document.getElementById('minCH');
+
+    const dpTxt = document.getElementById('dpTxt');
+    const seletorDP = document.getElementById('seletorDP');
+    const diaDP = document.getElementById('diaDP'), mesDP = document.getElementById('mesDP'), anoDP = document.getElementById('anoDP'), horaDP = document.getElementById('horaDP'), minDP = document.getElementById('minDP');
+
+    const finalTxt = document.getElementById('finalTxt');
+    const seletorFinal = document.getElementById('seletorFinal');
+    const diaF = document.getElementById('diaF'), mesF = document.getElementById('mesF'), anoF = document.getElementById('anoF'), horaF = document.getElementById('horaF'), minF = document.getElementById('minF');
+
+    const kmInicial = document.getElementById('kmInicial');
+    const kmFinal = document.getElementById('kmFinal');
+
+    const viListEl = document.getElementById('viList');
+    const btnAdicionar = document.getElementById('btnAdicionar');
+
+    /* ===== Estado ===== */
+    let usandoManualInicio=false;
+    let inicioAutoAtivo = true;   // <- controla se o INICIAL atualiza sozinho
+    let inicioDate = new Date();
+    let chegadaDate = null;
+    let dpDate = null;
+    let finalDate = null;
+
+    let editId = null;
+
+    /* ===== Persistência ===== */
+    const K = {
+      prefixo:'vi_prefixo', papel:'vi_papel',
+      inicio:'vi_inicioISO', chegada:'vi_chegadaISO', dp:'vi_dpISO', final:'vi_finalISO',
+      kmI:'vi_kmIni', kmF:'vi_kmFim',
+      lista:'vi_lista'
+    };
+
+    function getLista(){ try { return JSON.parse(sessionStorage.getItem(K.lista)||'[]'); } catch { return []; } }
+    function setLista(arr){ sessionStorage.setItem(K.lista, JSON.stringify(arr)); }
+
+    function restore(){
+      const pr = sessionStorage.getItem(K.prefixo); if(pr) prefixo.value = pr;
+      const papel = sessionStorage.getItem(K.papel);
+      if(papel){ [...papelRadios].forEach(r=>{ if(r.value===papel) r.checked=true; }); }
+
+      const iISO = sessionStorage.getItem(K.inicio);
+      if(iISO){ const d=new Date(iISO); if(!isNaN(d)){ inicioDate=d; usandoManualInicio=true; } }
+
+      const kmi = sessionStorage.getItem(K.kmI); if(kmi) kmInicial.value = kmi;
+      const kmf = sessionStorage.getItem(K.kmF); if(kmf) kmFinal.value = kmf;
+
+      inicioAutoAtivo = true;   // ao abrir a tela o inicial volta a ser automático
+      atualizarInicioAutomatico();
+      renderLista();
+    }
+
+    function salvarCamposBasicos(){
+      sessionStorage.setItem(K.prefixo, prefixo.value.replace(/\D+/g,''));
+      const papelSel = [...papelRadios].find(r=>r.checked);
+      sessionStorage.setItem(K.papel, papelSel ? papelSel.value : '');
+      sessionStorage.setItem(K.kmI, kmInicial.value.replace(/\D+/g,''));
+      sessionStorage.setItem(K.kmF, kmFinal.value.replace(/\D+/g,''));
+      if(inicioDate)   sessionStorage.setItem(K.inicio,   inicioDate.toISOString());
+      if(chegadaDate)  sessionStorage.setItem(K.chegada,  chegadaDate.toISOString());
+      if(dpDate)       sessionStorage.setItem(K.dp,       dpDate.toISOString());
+      if(finalDate)    sessionStorage.setItem(K.final,    finalDate.toISOString());
+    }
+
+    /* ===== Início automático ===== */
+    function atualizarInicioAutomatico(){
+      if(!inicioAutoAtivo) return;                       // <- não atualiza quando desligado
+      if(usandoManualInicio){
+        inicioTxt.textContent=toDisplay(inicioDate);
+        inicioTxt.classList.add('active'); inicioTxt.classList.remove('hint');
+        return;
+      }
+      const a=new Date(); inicioDate=a;
+      inicioTxt.textContent=toDisplay(inicioDate);
+      inicioTxt.classList.add('active'); inicioTxt.classList.remove('hint');
+    }
+    setInterval(atualizarInicioAutomatico, 60000);
+    atualizarInicioAutomatico();
+
+    /* ===== Pickers ===== */
+    function abrirSeletorInicio(){
+      seletorInicio.style.display='block'; seletorInicio.setAttribute('aria-hidden','false');
+      const base = inicioDate || new Date();
+      const ano=new Date().getFullYear();
+      preencherSelect(anoI, ano-5, ano+5, base.getFullYear());
+      preencherSelect(mesI,1,12,base.getMonth()+1);
+      preencherSelect(diaI,1,diasNoMes(base.getFullYear(),base.getMonth()+1),base.getDate());
+      preencherSelect(horaI,0,23,base.getHours());
+      preencherSelect(minI,0,59,base.getMinutes());
+    }
+    function confirmarInicio(){
+      const y=Number(anoI.value||new Date().getFullYear());
+      const m=Number(mesI.value||1);
+      const dd=Math.min(Number(diaI.value||1), diasNoMes(y,m));
+      const hh=Number(horaI.value||0);
+      const mm=Number(minI.value||0);
+      const esc=new Date(y,m-1,dd,hh,mm,0,0);
+      const agora=new Date();
+      if(esc>agora){ alert('A data/hora INICIAL deve ser pretérita ou igual ao momento da comunicação.'); }
+      else{
+        inicioDate=esc;
+        inicioTxt.textContent=toDisplay(inicioDate);
+        inicioTxt.classList.add('active'); inicioTxt.classList.remove('hint');
+        usandoManualInicio=true;
+        inicioAutoAtivo=true;
+      }
+      seletorInicio.style.display='none'; seletorInicio.setAttribute('aria-hidden','true');
+      salvarCamposBasicos();
+    }
+
+    function abrirSeletorChegada(){
+      seletorChegada.style.display='block'; seletorChegada.setAttribute('aria-hidden','false');
+      const base=chegadaDate || new Date(Math.max(inicioDate?inicioDate.getTime():Date.now(), Date.now()));
+      const ano=new Date().getFullYear();
+      preencherSelect(anoCH, ano-5, ano+5, base.getFullYear());
+      preencherSelect(mesCH,1,12,base.getMonth()+1);
+      preencherSelect(diaCH,1,diasNoMes(base.getFullYear(),base.getMonth()+1),base.getDate());
+      preencherSelect(horaCH,0,23,base.getHours());
+      preencherSelect(minCH,0,59,base.getMinutes());
+    }
+    function confirmarChegada(){
+      const y=Number(anoCH.value||new Date().getFullYear());
+      const m=Number(mesCH.value||1);
+      const dd=Math.min(Number(diaCH.value||1), diasNoMes(y,m));
+      const hh=Number(horaCH.value||0);
+      const mm=Number(minCH.value||0);
+      const esc=new Date(y,m-1,dd,hh,mm,0,0);
+      if(inicioDate && esc<inicioDate){ alert('CHEGADA não pode ser anterior ao INICIAL.'); }
+      else{ chegadaDate=esc; chegadaTxt.textContent=toDisplay(chegadaDate); chegadaTxt.classList.remove('hint'); chegadaTxt.classList.add('active'); }
+      seletorChegada.style.display='none'; seletorChegada.setAttribute('aria-hidden','true');
+      salvarCamposBasicos();
+    }
+
+    function abrirSeletorDP(){
+      seletorDP.style.display='block'; seletorDP.setAttribute('aria-hidden','false');
+      const base=dpDate || new Date(Math.max((chegadaDate||inicioDate||new Date()).getTime(), Date.now()));
+      const ano=new Date().getFullYear();
+      preencherSelect(anoDP, ano-5, ano+5, base.getFullYear());
+      preencherSelect(mesDP,1,12,base.getMonth()+1);
+      preencherSelect(diaDP,1,diasNoMes(base.getFullYear(),base.getMonth()+1),base.getDate());
+      preencherSelect(horaDP,0,23,base.getHours());
+      preencherSelect(minDP,0,59,base.getMinutes());
+    }
+    function confirmarDP(){
+      const y=Number(anoDP.value||new Date().getFullYear());
+      const m=Number(mesDP.value||1);
+      const dd=Math.min(Number(diaDP.value||1), diasNoMes(y,m));
+      const hh=Number(horaDP.value||0);
+      const mm=Number(minDP.value||0);
+      const esc=new Date(y,m-1,dd,hh,mm,0,0);
+      const minimo = chegadaDate || inicioDate;
+      if(minimo && esc<minimo){ alert('CHEGADA DP não pode ser anterior à CHEGADA/INICIAL.'); }
+      else{ dpDate=esc; dpTxt.textContent=toDisplay(dpDate); dpTxt.classList.remove('hint'); dpTxt.classList.add('active'); }
+      seletorDP.style.display='none'; seletorDP.setAttribute('aria-hidden','true');
+      salvarCamposBasicos();
+    }
+
+    function abrirSeletorFinal(){
+      seletorFinal.style.display='block'; seletorFinal.setAttribute('aria-hidden','false');
+      const base=finalDate||new Date(Math.max(inicioDate?inicioDate.getTime():0, (chegadaDate?chegadaDate.getTime():0), (dpDate?dpDate.getTime():0), Date.now()));
+      const ano=new Date().getFullYear();
+      preencherSelect(anoF, ano-5, ano+5, base.getFullYear());
+      preencherSelect(mesF,1,12,base.getMonth()+1);
+      preencherSelect(diaF,1,diasNoMes(base.getFullYear(),base.getMonth()+1),base.getDate());
+      preencherSelect(horaF,0,23,base.getHours());
+      preencherSelect(minF,0,59,base.getMinutes());
+    }
+    function confirmarFinal(){
+      const y=Number(anoF.value||new Date().getFullYear());
+      const m=Number(mesF.value||1);
+      const dd=Math.min(Number(diaF.value||1), diasNoMes(y,m));
+      const hh=Number(horaF.value||0);
+      const mm=Number(minF.value||0);
+      const esc=new Date(y,m-1,dd,hh,mm,0,0);
+      const minimo = dpDate || chegadaDate || inicioDate;
+      if(minimo && esc<minimo){ alert('FINAL não pode ser anterior ao INICIAL/CHEGADA/CHEGADA DP.'); }
+      else{ finalDate=esc; finalTxt.textContent=toDisplay(finalDate); finalTxt.classList.remove('hint'); finalTxt.classList.add('active'); }
+      seletorFinal.style.display='none'; seletorFinal.setAttribute('aria-hidden','true');
+      salvarCamposBasicos();
+    }
+
+    /* Clique para abrir cada seletor */
+    inicioTxt  .addEventListener('click', abrirSeletorInicio);
+    chegadaTxt .addEventListener('click', abrirSeletorChegada);
+    dpTxt      .addEventListener('click', abrirSeletorDP);
+    finalTxt   .addEventListener('click', abrirSeletorFinal);
+
+    /* Numéricos */
+    function onlyDigits(el){ el.addEventListener('input', e=>{ e.target.value = e.target.value.replace(/\D+/g,''); salvarCamposBasicos(); }); }
+    onlyDigits(prefixo); onlyDigits(kmInicial); onlyDigits(kmFinal);
+
+    [...papelRadios].forEach(r=> r.addEventListener('change', salvarCamposBasicos));
+
+    /* Lista estilo fatos-complementares */
+    function renderLista(){
+      const arr = getLista();
+      viListEl.innerHTML = '';
+      for(const it of arr){
+        const card = document.createElement('div');
+        card.className = 'vi-card';
+        card.dataset.id = it.id;
+
+        const papelLabel = it.papel==='apoio' ? 'Apoio' : 'Atendente';
+        const titulo = document.createElement('p');
+        titulo.className = 'vi-title';
+        titulo.textContent = `${it.prefixo || '—'} - ${papelLabel}`;
+        card.appendChild(titulo);
+
+        const actions = document.createElement('div');
+        actions.className = 'vi-actions';
+
+        const bEdit = document.createElement('button');
+        bEdit.className='icon-btn';
+        bEdit.title='Editar';
+        bEdit.innerHTML = '<img src="img/editar.png" alt="Editar">';
+        bEdit.addEventListener('click', ()=>editarItem(it.id));
+
+        const bDel = document.createElement('button');
+        bDel.className='icon-btn';
+        bDel.title='Excluir';
+        bDel.innerHTML = '<img src="img/excluir.png" alt="Excluir">';
+        bDel.addEventListener('click', ()=>excluirItem(it.id));
+
+        actions.appendChild(bEdit);
+        actions.appendChild(bDel);
+        card.appendChild(actions);
+
+        viListEl.appendChild(card);
+      }
+    }
+
+    /* Limpar tudo após adicionar */
+    function limparTodosCamposEditaveis(){
+      // textos
+      prefixo.value = '';
+      kmInicial.value = '';
+      kmFinal.value = '';
+
+      // radios
+      [...papelRadios].forEach(r=> r.checked = false);
+
+      // INICIAL: desliga auto e mostra Data/Hora
+      inicioAutoAtivo = false;
+      usandoManualInicio = false;
+      inicioDate = null;
+      inicioTxt.textContent = 'Data/Hora';
+      inicioTxt.classList.add('hint'); inicioTxt.classList.remove('active');
+
+      // demais datas
+      chegadaDate = null; dpDate=null; finalDate=null;
+      chegadaTxt.textContent='Data/Hora'; chegadaTxt.classList.add('hint'); chegadaTxt.classList.remove('active');
+      dpTxt.textContent='Data/Hora'; dpTxt.classList.add('hint'); dpTxt.classList.remove('active');
+      finalTxt.textContent='Data/Hora'; finalTxt.classList.add('hint'); finalTxt.classList.remove('active');
+
+      // limpar persistência
+      sessionStorage.setItem(K.prefixo,'');
+      sessionStorage.setItem(K.papel,'');
+      sessionStorage.setItem(K.kmI,'');
+      sessionStorage.setItem(K.kmF,'');
+      sessionStorage.removeItem(K.inicio);
+      sessionStorage.removeItem(K.chegada);
+      sessionStorage.removeItem(K.dp);
+      sessionStorage.removeItem(K.final);
+    }
+
+    function preencherCamposDoItem(it){
+      prefixo.value = it.prefixo || '';
+      [...papelRadios].forEach(r=> r.checked = (r.value===it.papel));
+      inicioDate = new Date(it.inicio); usandoManualInicio=true; inicioAutoAtivo=true;
+      inicioTxt.textContent=toDisplay(inicioDate); inicioTxt.classList.add('active'); inicioTxt.classList.remove('hint');
+
+      if(it.chegada){ chegadaDate = new Date(it.chegada); chegadaTxt.textContent=toDisplay(chegadaDate); chegadaTxt.classList.remove('hint'); chegadaTxt.classList.add('active'); }
+      else { chegadaDate=null; chegadaTxt.textContent='Data/Hora'; chegadaTxt.classList.add('hint'); chegadaTxt.classList.remove('active'); }
+
+      if(it.dp){ dpDate = new Date(it.dp); dpTxt.textContent=toDisplay(dpDate); dpTxt.classList.remove('hint'); dpTxt.classList.add('active'); }
+      else { dpDate=null; dpTxt.textContent='Data/Hora'; dpTxt.classList.add('hint'); dpTxt.classList.remove('active'); }
+
+      if(it.final){ finalDate = new Date(it.final); finalTxt.textContent=toDisplay(finalDate); finalTxt.classList.remove('hint'); finalTxt.classList.add('active'); }
+      else { finalDate=null; finalTxt.textContent='Data/Hora'; finalTxt.classList.add('hint'); finalTxt.classList.remove('active'); }
+
+      kmInicial.value = it.kmInicial || '';
+      kmFinal.value = it.kmFinal || '';
+      salvarCamposBasicos();
+    }
+
+    function editarItem(id){
+      const arr = getLista();
+      const it = arr.find(x=>x.id===id);
+      if(!it) return;
+      editId = id;
+      btnAdicionar.textContent = 'ATUALIZAR';
+      preencherCamposDoItem(it);
+      document.querySelector('.content').scrollTo({top:0, behavior:'smooth'});
+    }
+
+    function excluirItem(id){
+      const arr = getLista().filter(x=>x.id!==id);
+      setLista(arr);
+      renderLista();
+      if(editId===id){
+        editId=null;
+        btnAdicionar.textContent='ADICIONAR';
+        limparTodosCamposEditaveis();
+      }
+    }
+
+    /* Validação e salvar */
+    function validarObrigatorios(){
+      const papelSel = [...papelRadios].find(r=>r.checked);
+      if(!prefixo.value.trim()) { alert('Informe o PREFIXO da viatura.'); prefixo.focus(); return false; }
+      if(!papelSel){ alert('Selecione se a viatura é ATENDENTE ou APOIO.'); return false; }
+      if(!inicioDate){ alert('Defina a data/hora INICIAL.'); return false; }
+      if(!dpDate){ alert('Defina a CHEGADA DP.'); return false; }
+      if(!finalDate){ alert('Defina a data/hora FINAL.'); return false; }
+      if(chegadaDate && inicioDate && chegadaDate < inicioDate){ alert('CHEGADA não pode ser anterior ao INICIAL.'); return false; }
+      if(dpDate && chegadaDate && dpDate < chegadaDate){ alert('CHEGADA DP não pode ser anterior à CHEGADA.'); return false; }
+      if(finalDate < (dpDate || chegadaDate || inicioDate)){ alert('FINAL não pode ser anterior à CHEGADA DP/CHEGADA/INICIAL.'); return false; }
+      return true;
+    }
+
+    function salvarViaturaNaLista(){
+      const papelSel = [...papelRadios].find(r=>r.checked)?.value || '';
+      const item = {
+        id: editId || ('vi_' + Date.now()),
+        prefixo: prefixo.value.replace(/\D+/g,''),
+        papel: papelSel,
+        inicio: inicioDate ? new Date(inicioDate).toISOString() : null,
+        chegada: chegadaDate ? new Date(chegadaDate).toISOString() : null,
+        dp: dpDate ? new Date(dpDate).toISOString() : null,
+        final: finalDate ? new Date(finalDate).toISOString() : null,
+        kmInicial: kmInicial.value.replace(/\D+/g,'') || '',
+        kmFinal: kmFinal.value.replace(/\D+/g,'') || ''
+      };
+
+      const arr = getLista();
+      if(editId){
+        const idx = arr.findIndex(x=>x.id===editId);
+        if(idx>=0) arr[idx] = item;
+        editId = null;
+        btnAdicionar.textContent = 'ADICIONAR';
+      }else{
+        arr.unshift(item);
+      }
+      setLista(arr);
+      renderLista();
+    }
+
+    function salvarViatura(){
+      if(!validarObrigatorios()) return false;
+      salvarCamposBasicos();
+      salvarViaturaNaLista();
+      limparTodosCamposEditaveis();   // limpa tudo após adicionar
+      return true;
+    }
+
+    btnAdicionar.addEventListener('click', salvarViatura);
+    document.getElementById('btnBack').addEventListener('click', ()=>{ salvarCamposBasicos(); window.location.href='historico.html'; });
+
+    /* Init */
+    restore();
+  </script>
+</body>
+</html>

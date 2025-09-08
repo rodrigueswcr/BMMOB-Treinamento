@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <base href="/BMMOB-Treinamento/">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registrar Boletim</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f1f1f1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: #fff;
+      width: 100%;
+      max-width: 400px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top bar substitui o header antigo */
+    .topbar {
+      background-color: #333;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+    .topbar .title {
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .topbar img {
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+    }
+
+    .content {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    select.form-select {
+      width: 100%;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-bottom: 12px;
+      font-size: 14px;
+      background: white;
+    }
+    select.form-select option:first-child { color: red; }
+
+    .tipo-label, .comunicacao-label {
+      text-align: center;
+      display: block;
+      font-weight: bold;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+
+    .required { color: red; margin-right: 4px; }
+
+    .tipo-boletim {
+      display: flex;
+      justify-content: center;
+      margin: 10px 0;
+    }
+
+    .tipo-btn {
+      flex: 1;
+      margin: 5px;
+      background-color: #4d7c7b;
+      color: white;
+      font-weight: bold;
+      border: none;
+      padding: 20px;
+      text-align: center;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .tipo-btn.selected { background-color: #2c4e4d; }
+
+    .comunicacao { margin-top: 12px; }
+    .comunicacao-columns { display: flex; justify-content: space-between; margin-top: 8px; }
+    .col { flex: 1; display: flex; flex-direction: column; align-items: flex-start; }
+    .col + .col { align-items: center; border-left: 1px solid #ccc; }
+    .col label { font-weight: normal; margin: 5px 0; }
+
+    .datetime {
+      margin-top: 15px;
+      font-size: 13px;
+      color: #333;
+      text-align: left;
+    }
+    .datetime b {
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #seletorDataHora { display: none; margin-top: 10px; }
+    .picker-container {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      align-items: start;
+    }
+    .picker-col { display: flex; flex-direction: column; align-items: center; }
+    .picker-select {
+      width: 100%;
+      font-size: 14px;
+      text-align: center;
+      border: none;
+      outline: none;
+      background: transparent;
+      -webkit-appearance: none;
+      appearance: none;
+      padding: 4px 0;
+    }
+    .picker-actions {
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+    .btn-ok {
+      padding: 6px 10px;
+      border: none;
+      border-radius: 6px;
+      background-color: #4d7c7b;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-around;
+      background-color: #2f6f73;
+      padding: 10px 0;
+      flex-shrink: 0;
+    }
+    .footer img {
+      cursor: pointer;
+      width: 28px; height: 28px;
+      transition: all 0.2s ease-in-out;
+      filter: grayscale(30%) brightness(0.9);
+    }
+    .footer img:hover { width: 32px; height: 32px; filter: grayscale(0%) brightness(1.2); }
+    .footer img.active { filter: grayscale(0%) brightness(1.1) contrast(1.0); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Top bar com imagens -->
+    <div class="topbar">
+      <img src="img/back.png" alt="Voltar" onclick="window.history.back()">
+      <div class="title">BOLETIM</div>
+      <img src="img/check.png" alt="Salvar" onclick="salvarBoletim()">
+    </div>
+
+    <div class="content">
+      <select id="orgao" class="form-select" required>
+        <option value="" disabled selected>* Órgão</option>
+        <option>SANTA MARIA - 1º RPMON - BM</option>
+        <option>OSÓRIO - 8º BPM - BM</option>
+        <option>PORTO ALEGRE - 9º BPM - BM</option>
+        <option>CAPÃO DA CANOA - 2º BPAT - BM</option>
+        <option>OSÓRIO - ESFES - BM</option>
+      </select>
+
+      <select id="operacao" class="form-select" required>
+        <option value="" disabled selected>* Operação</option>
+        <option>Eleições 2022</option>
+        <option>Operação 45º Expointer</option>
+        <option>Operação AVANTE</option>
+        <option>Operação Hórus</option>
+        <option>Operação Fecha Quartel</option>
+        <option>Patrulha Maria da Penha</option>
+        <option>Policiamento Comunitário</option>
+        <option>Operação Cavalo de Aço</option>
+        <option>Batalhão Escola</option>
+        <option>Estágio Supervisionado</option>
+        <option>Emprego Operacional de Alunos</option>
+      </select>
+
+      <label class="tipo-label"><span class="required">*</span>Tipo de Boletim</label>
+      <div class="tipo-boletim">
+        <button class="tipo-btn">BA</button>
+        <button class="tipo-btn">BO COP</button>
+        <button class="tipo-btn">BO TC</button>
+      </div>
+
+      <label class="comunicacao-label"><span class="required">*</span>Forma de Comunicação</label>
+      <div class="comunicacao">
+        <div class="comunicacao-columns">
+          <div class="col">
+            <input type="radio" name="comunicacao" id="radio"><label for="radio">Rádio</label>
+            <input type="radio" name="comunicacao" id="pessoal"><label for="pessoal">Pessoal</label>
+          </div>
+          <div class="col">
+            <input type="radio" name="comunicacao" id="fone"><label for="fone">Fone</label>
+            <input type="radio" name="comunicacao" id="outros"><label for="outros">Outros</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="datetime">
+        Data/hora da Ocorrência<br>
+        <b id="dataHora" onclick="mostrarSeletor()" title="Clique para definir manualmente"></b>
+
+        <div id="seletorDataHora" aria-hidden="true">
+          <div class="picker-container">
+            <div class="picker-col"><select id="dia" class="picker-select" size="5"></select></div>
+            <div class="picker-col"><select id="mes" class="picker-select" size="5"></select></div>
+            <div class="picker-col"><select id="ano" class="picker-select" size="5"></select></div>
+            <div class="picker-col"><select id="hora" class="picker-select" size="5"></select></div>
+            <div class="picker-col"><select id="minuto" class="picker-select" size="5"></select></div>
+          </div>
+          <div class="picker-actions">
+            <button class="btn-ok" onclick="confirmarDataHora()">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <img src="img/doc.png" alt="Boletim" class="active">
+      <img src="img/user.png" alt="Indivíduo">
+      <img src="img/car.png" alt="Veículo">
+      <img src="img/gun.png" alt="Arma">
+      <img src="img/doc.png" alt="Outros">
+    </div>
+  </div>
+
+  <script>
+    let usandoManual = false;
+    function pad2(n){ return String(n).padStart(2,'0'); }
+
+    function atualizarDataHora() {
+      if (usandoManual) return;
+      const agora = new Date();
+      document.getElementById('dataHora').textContent =
+        `${pad2(agora.getDate())}/${pad2(agora.getMonth()+1)}/${agora.getFullYear()} ${pad2(agora.getHours())}:${pad2(agora.getMinutes())}`;
+    }
+    atualizarDataHora();
+    setInterval(atualizarDataHora, 60000);
+
+    function diasNoMes(ano, mes1a12){
+      return new Date(ano, mes1a12, 0).getDate();
+    }
+    function preencherSelect(id, de, ate, selecionado){
+      const sel = document.getElementById(id);
+      sel.innerHTML = '';
+      for(let i=de; i<=ate; i++){
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = (i < 10 ? '0' + i : String(i));
+        if(String(i) === String(selecionado)) opt.selected = true;
+        sel.appendChild(opt);
+      }
+    }
+
+    function lerDataHoraExibida(){
+      const txt = document.getElementById('dataHora').textContent.trim();
+      const m = txt.match(/^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2})$/);
+      if (m){
+        return {
+          dia: parseInt(m[1],10),
+          mes: parseInt(m[2],10),
+          ano: parseInt(m[3],10),
+          hora: parseInt(m[4],10),
+          minuto: parseInt(m[5],10),
+        };
+      }
+      const d = new Date();
+      return { dia:d.getDate(), mes:d.getMonth()+1, ano:d.getFullYear(), hora:d.getHours(), minuto:d.getMinutes() };
+    }
+
+    function mostrarSeletor(){
+      const box = document.getElementById('seletorDataHora');
+      if (box.style.display !== 'block'){
+        box.style.display = 'block';
+        box.setAttribute('aria-hidden','false');
+      }
+      const atual = lerDataHoraExibida();
+      const anoAtual = new Date().getFullYear();
+      preencherSelect('ano', anoAtual-5, anoAtual+5, atual.ano);
+      preencherSelect('mes', 1, 12, atual.mes);
+      const maxDia = diasNoMes(atual.ano, atual.mes);
+      preencherSelect('dia', 1, maxDia, atual.dia);
+      preencherSelect('hora', 0, 23, atual.hora);
+      preencherSelect('minuto', 0, 59, atual.minuto);
+    }
+
+    function confirmarDataHora(){
+      const dia = pad2(document.getElementById('dia').value || '01');
+      const mes = pad2(document.getElementById('mes').value || '01');
+      const ano = document.getElementById('ano').value || String(new Date().getFullYear());
+      const hora = pad2(document.getElementById('hora').value || '00');
+      const minuto = pad2(document.getElementById('minuto').value || '00');
+      document.getElementById('dataHora').textContent = `${dia}/${mes}/${ano} ${hora}:${minuto}`;
+      usandoManual = true;
+      document.getElementById('seletorDataHora').style.display = 'none';
+    }
+
+    let tipoSelecionado = null;
+    document.querySelectorAll('.tipo-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tipo-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        tipoSelecionado = btn.textContent;
+      });
+    });
+
+    function salvarBoletim(){
+      const orgao = document.getElementById('orgao').value;
+      const operacao = document.getElementById('operacao').value;
+      const comunicacao = document.querySelector('input[name="comunicacao"]:checked');
+      if (!orgao) { alert("O campo Órgão é obrigatório!"); return; }
+      if (!operacao) { alert("O campo Operação é obrigatório!"); return; }
+      if (!tipoSelecionado) { alert("O campo Tipo de Boletim é obrigatório!"); return; }
+      if (!comunicacao) { alert("O campo Forma de Comunicação é obrigatório!"); return; }
+
+      if (tipoSelecionado === "BA") {
+        window.location.href="fato-ba.html";
+      } else if (tipoSelecionado === "BO COP") {
+        window.location.href="fato-bocop.html";
+      } else if (tipoSelecionado === "BO TC") {
+        window.location.href="fato-botc.html";
+      }
+    }
+  </script>
+</body>
+</html>
