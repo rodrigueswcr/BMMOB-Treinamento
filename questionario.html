@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Questionário - Boletim</title>
+  <style>
+    *{box-sizing:border-box}
+    html, body { height: 100%; }
+    body{
+      margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f1f1;
+      display:flex;justify-content:center;align-items:center;min-height:100dvh
+    }
+    .container{background:#fff;width:100%;max-width:400px;height:100dvh;display:flex;flex-direction:column}
+
+    .topbar{background:#333;color:#fff;display:flex;align-items:center;gap:12px;padding:12px 14px;font-weight:bold;font-size:18px;flex-shrink:0}
+    .topbar .icon{width:22px;height:22px;cursor:pointer}
+    .topbar .spacer{flex:1}
+
+    .content{padding:12px;overflow-y:auto;flex:1}
+
+    .q-item{padding:10px 0;border-bottom:1px solid #e6e6e6}
+    .q-item:last-child{border-bottom:none}
+    .q-title{font-size:14px;font-weight:bold;color:#333;margin-bottom:6px}
+    .q-opts{display:flex;align-items:center;gap:22px}
+    .q-opts label{display:inline-flex;align-items:center;gap:6px;font-size:14px}
+
+    .pager-dots{display:flex;justify-content:center;align-items:center;gap:8px;padding:10px 0 6px}
+    .pager-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#cdd2d3}
+    .pager-dot.active{background:#2f6f73}
+
+    .footer{display:flex;justify-content:space-around;background:#2f6f73;padding:10px 0;flex-shrink:0}
+    .footer img{cursor:pointer;width:28px;height:28px;transition:.2s;filter:grayscale(30%) brightness(0.9)}
+    .footer img:hover{width:32px;height:32px;filter:grayscale(0%) brightness(1.2)}
+    .footer img.active{filter:grayscale(0%) brightness(1.1) contrast(1.0)}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <img class="icon" src="img/back.png" alt="Voltar" onclick="window.location.href='registrar.html'">
+      <div>BOLETIM</div>
+      <div class="spacer"></div>
+      <img class="icon" src="img/check.png" alt="Avançar" onclick="window.location.href='fato-ba.html'">
+    </div>
+
+    <div class="content">
+      <div class="q-item">
+        <div class="q-title"><span style="color:#d00">*</span> Prisão e/ou Aprendido ECA</div>
+        <div class="q-opts">
+          <label><input type="radio" name="q1" value="Sim" required> Sim</label>
+          <label><input type="radio" name="q1" value="Não"> Não</label>
+        </div>
+      </div>
+
+      <div class="q-item">
+        <div class="q-title"><span style="color:#d00">*</span> Abordagem policial</div>
+        <div class="q-opts">
+          <label><input type="radio" name="q2" value="Sim" required> Sim</label>
+          <label><input type="radio" name="q2" value="Não"> Não</label>
+        </div>
+      </div>
+
+      <div class="q-item">
+        <div class="q-title"><span style="color:#d00">*</span> Apreensão de armas</div>
+        <div class="q-opts">
+          <label><input type="radio" name="q3" value="Sim" required> Sim</label>
+          <label><input type="radio" name="q3" value="Não"> Não</label>
+        </div>
+      </div>
+
+      <div class="q-item">
+        <div class="q-title"><span style="color:#d00">*</span> Apreensão de drogas</div>
+        <div class="q-opts">
+          <label><input type="radio" name="q4" value="Sim" required> Sim</label>
+          <label><input type="radio" name="q4" value="Não"> Não</label>
+        </div>
+      </div>
+
+      <div class="q-item">
+        <div class="q-title"><span style="color:#d00">*</span> Apreensão de objetos</div>
+        <div class="q-opts">
+          <label><input type="radio" name="q5" value="Sim" required> Sim</label>
+          <label><input type="radio" name="q5" value="Não"> Não</label>
+        </div>
+      </div>
+
+      <div class="q-item">
+        <div class="q-title"><span style="color:#d00">*</span> Apreensão de veículo</div>
+        <div class="q-opts">
+          <label><input type="radio" name="q6" value="Sim" required> Sim</label>
+          <label><input type="radio" name="q6" value="Não"> Não</label>
+        </div>
+      </div>
+
+      <div class="q-item">
+        <div class="q-title"><span style="color:#d00">*</span> Autuação de veículo</div>
+        <div class="q-opts">
+          <label><input type="radio" name="q7" value="Sim" required> Sim</label>
+          <label><input type="radio" name="q7" value="Não"> Não</label>
+        </div>
+      </div>
+
+      <div class="q-item">
+        <div class="q-title"><span style="color:#d00">*</span> Remoção e retenção de veículo</div>
+        <div class="q-opts">
+          <label><input type="radio" name="q8" value="Sim" required> Sim</label>
+          <label><input type="radio" name="q8" value="Não"> Não</label>
+        </div>
+      </div>
+
+      <div class="q-item">
+        <div class="q-title"><span style="color:#d00">*</span> Veículos fiscalizados</div>
+        <div class="q-opts">
+          <label><input type="radio" name="q9" value="Sim" required> Sim</label>
+          <label><input type="radio" name="q9" value="Não"> Não</label>
+        </div>
+      </div>
+
+      <div style="height:8px"></div>
+    </div>
+
+    <div class="pager-dots" aria-label="Progresso">
+      <a class="pager-dot" href="registrar.html" title="Registrar"></a>
+      <a class="pager-dot active" href="questionario.html" title="Questionário"></a>
+      <a class="pager-dot" href="fato-ba.html" title="Fato"></a>
+      <a class="pager-dot" href="localizacao.html" title="Localização"></a>
+      <a class="pager-dot" href="historico.html" title="Histórico"></a>
+    </div>
+
+    <!-- Footer igual ao registrar.html -->
+    <div class="footer">
+      <img src="img/doc.png" alt="Boletim" class="active">
+      <img src="img/user.png" alt="Indivíduo">
+      <img src="img/object.png" alt="Objeto">
+      <img src="img/gun.png" alt="Arma">
+      <img src="img/car.png" alt="Veículo">
+      <img src="img/doc.png" alt="Outros">
+    </div>
+  </div>
+
+  <!-- Footer selecionável -->
+  <script>
+    (function footerSelectable(){
+      const icons=document.querySelectorAll('.footer img');
+      icons.forEach(img=>img.addEventListener('click',()=>{
+        icons.forEach(i=>i.classList.remove('active')); img.classList.add('active');
+      }));
+    })();
+  </script>
+
+  <!-- Persistência do questionário + MOD 1: salvar antes de navegar pelo pager -->
+  <script>
+    function salvarQuestionario(){
+      for(let i=1;i<=9;i++){
+        const sel = document.querySelector(`input[name="q${i}"]:checked`);
+        sessionStorage.setItem(`q${i}`, sel ? sel.value : '');
+      }
+    }
+    // (opcional) restaura seleção anterior
+    (function restoreQuestionario(){
+      for(let i=1;i<=9;i++){
+        const val = sessionStorage.getItem(`q${i}`);
+        if(val){
+          const el = document.querySelector(`input[name="q${i}"][value="${val}"]`);
+          if(el) el.checked = true;
+        }
+      }
+    })();
+
+    // MOD 1: intercepta clique nas bolinhas do pager para salvar antes de trocar de etapa
+    document.querySelectorAll('.pager-dots a').forEach(a=>{
+      a.addEventListener('click', (e)=>{
+        e.preventDefault();
+        salvarQuestionario();
+        window.location.href = a.getAttribute('href');
+      });
+    });
+  </script>
+
+  <!-- SWIPE LATERAL (arrastar para navegar) com MOD 2: salvar antes do swipe -->
+  <script>
+  (function enableSwipePages(){
+    const ROUTE = ['registrar.html','questionario.html','fato-ba.html','localizacao.html','historico.html'];
+    const here = (location.pathname.split('/').pop() || 'questionario.html').toLowerCase();
+    const idx = ROUTE.indexOf(here);
+    let x0=null, y0=null, t0=0;
+    const THRESH = 50, MAX_TIME = 600, V_SLOPE = 0.5;
+    const unify = (e)=> e.changedTouches ? e.changedTouches[0] : e;
+    function onStart(e){ const p=unify(e); x0=p.clientX; y0=p.clientY; t0=Date.now(); }
+    function onEnd(e){
+      if(x0===null) return;
+      const p=unify(e), dx=p.clientX-x0, dy=p.clientY-y0, dt=Date.now()-t0;
+      const horizontal = Math.abs(dx)>THRESH && Math.abs(dy)<Math.abs(dx)*V_SLOPE && dt<MAX_TIME;
+      if(horizontal){
+        if(dx<0 && idx<ROUTE.length-1){
+          salvarQuestionario();        // MOD 2: salva antes de avançar por swipe
+          location.href=ROUTE[idx+1];
+        } else if(dx>0 && idx>0){
+          salvarQuestionario();        // MOD 2: salva antes de voltar por swipe
+          location.href=ROUTE[idx-1];
+        }
+      }
+      x0=null;
+    }
+    window.addEventListener('touchstart', onStart, {passive:true});
+    window.addEventListener('touchend', onEnd, {passive:true});
+  })();
+  </script>
+</body>
+</html>

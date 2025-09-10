@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boletim</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f1f1f1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: #e6e6e6;
+      width: 90%;
+      max-width: 360px;
+      border-radius: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      text-align: center;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .header {
+      background-color: #333;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      text-transform: uppercase;
+      padding: 12px;
+      margin: 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      padding: 20px;
+      flex-grow: 1;
+    }
+
+    .item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      text-decoration: none; /* remove sublinhado */
+    }
+
+    .item img {
+      width: 70px;  
+      height: 70px;
+      object-fit: contain;
+      margin-bottom: 8px;
+    }
+
+    .item span {
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .version {
+      font-size: 12px;
+      color: #555;
+      margin: 12px auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">Boletim</div>
+
+    <div class="grid">
+      <a href="registrar.html" class="item">
+        <img src="img/registrar.png" alt="Registrar">
+        <span>Registrar</span>
+      </a>
+      <a href="consultar.html" class="item">
+        <img src="img/consultar.png" alt="Consultar">
+        <span>Consultar</span>
+      </a>
+      <a href="consultarv.html" class="item">
+        <img src="img/consultarv.png" alt="Consultar Veículo">
+        <span>Consultar veículo</span>
+      </a>
+      <a href="consultari.html" class="item">
+        <img src="img/consultari.png" alt="Consultar Indivíduo">
+        <span>Consultar indivíduo</span>
+      </a>
+      <a href="consultara.html" class="item">
+        <img src="img/consultara.png" alt="Consultar Arma">
+        <span>Consultar arma</span>
+      </a>
+    </div>
+
+    <div class="version">Versão atual: 2.9.4 (Treinamento)</div>
+  </div>
+</body>
+</html>
