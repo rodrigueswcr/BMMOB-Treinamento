@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Objetos</title>
+  <title>Armas</title>
   <style>
     *{box-sizing:border-box}
     html, body { height:100%; }
@@ -13,7 +13,7 @@
     }
     .container{background:#fff;width:100%;max-width:400px;height:100dvh;display:flex;flex-direction:column}
 
-    /* Topbar padrão */
+    /* Topbar */
     .topbar{
       background:#333;color:#fff;display:flex;align-items:center;justify-content:space-between;
       padding:10px 12px;font-weight:bold;flex-shrink:0;
@@ -43,54 +43,57 @@
     </div>
 
     <div class="content">
-      <div class="title">OBJETOS</div>
+      <div class="title">ARMAS</div>
       <button class="btn btn-primary" id="btnAdd">ADICIONAR</button>
-      <!-- você pode listar itens adicionados aqui depois -->
+      <!-- lista de armas (quando houver) -->
       <div id="lista"></div>
     </div>
 
-    <!-- Footer com OBJECT destacado -->
+    <!-- Footer com ARMA destacado -->
     <div class="footer" id="footer">
-      <img src="img/doc.png"   alt="Boletim">
-      <img src="img/user.png"  alt="Indivíduo">
-      <img src="img/object.png" alt="Objeto" class="active">
-      <img src="img/gun.png"   alt="Arma">
-      <img src="img/car.png"   alt="Veículo">
-      <img src="img/doc.png"   alt="Outros">
+      <img src="img/doc.png"    alt="Boletim">
+      <img src="img/user.png"   alt="Indivíduo">
+      <img src="img/object.png" alt="Objeto">
+      <img src="img/gun.png"    alt="Arma" class="active">
+      <img src="img/car.png"    alt="Veículo">
+      <img src="img/doc.png"    alt="Outros">
     </div>
   </div>
 
   <script>
-(function footerRouter(){
-  const footer = document.querySelector('.footer');
-  if (!footer) return;
+    // Navegação do footer (mesmo padrão usado nos outros arquivos)
+    (function footerRouter(){
+      const footer = document.getElementById('footer');
+      if (!footer) return;
 
-   // Mapeamento por ALT
-  const routes = {
-    'Boletim':   'registrar.html',
+      const routes = {
+        'Boletim':   'registrar.html',
         'Indivíduo': 'participantes.html',
         'Objeto':    'objetos.html',
         'Arma':      'armas.html',
         'Veículo':   'veiculos.html',
         'Outros':    'anexos.html'
-  };
+        // 'Outros' sem rota definida
+      };
 
-  // Delegação de eventos no footer (um único listener)
-  footer.addEventListener('click', (ev) => {
-    const img = ev.target.closest('img');
-    if (!img) return;
-    const alt = img.getAttribute('alt');
-    const href = routes[alt];
-    if (!href) return;
+      footer.addEventListener('click', (ev) => {
+        const img = ev.target.closest('img');
+        if (!img) return;
+        const alt = img.getAttribute('alt');
+        const href = routes[alt];
+        if (!href) return;
 
-    // Mantém o destaque visual
-    footer.querySelectorAll('img').forEach(i => i.classList.remove('active'));
-    img.classList.add('active');
+        footer.querySelectorAll('img').forEach(i => i.classList.remove('active'));
+        img.classList.add('active');
+        window.location.href = href;
+      });
+    })();
 
-    // Navega
-    window.location.href = href;
-  });
-})();
-</script>
+    // (Opcional) placeholder para o botão ADICIONAR
+    document.getElementById('btnAdd').addEventListener('click', ()=>{
+      // você pode abrir um formulário de arma aqui
+      alert('Abrir formulário para adicionar arma (defina o destino quando quiser).');
+    });
+  </script>
 </body>
 </html>

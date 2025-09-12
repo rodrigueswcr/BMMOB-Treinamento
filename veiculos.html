@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Objetos</title>
+  <title>Veículos</title>
   <style>
     *{box-sizing:border-box}
     html, body { height:100%; }
@@ -43,29 +43,29 @@
     </div>
 
     <div class="content">
-      <div class="title">OBJETOS</div>
+      <div class="title">VEÍCULOS</div>
       <button class="btn btn-primary" id="btnAdd">ADICIONAR</button>
-      <!-- você pode listar itens adicionados aqui depois -->
+      <!-- listagem dos veículos adicionados -->
       <div id="lista"></div>
     </div>
 
-    <!-- Footer com OBJECT destacado -->
+    <!-- Footer com CAR destacado -->
     <div class="footer" id="footer">
       <img src="img/doc.png"   alt="Boletim">
       <img src="img/user.png"  alt="Indivíduo">
-      <img src="img/object.png" alt="Objeto" class="active">
+      <img src="img/object.png" alt="Objeto">
       <img src="img/gun.png"   alt="Arma">
-      <img src="img/car.png"   alt="Veículo">
+      <img src="img/car.png"   alt="Veículo" class="active">
       <img src="img/doc.png"   alt="Outros">
     </div>
   </div>
 
-  <script>
+    <script>
 (function footerRouter(){
   const footer = document.querySelector('.footer');
   if (!footer) return;
 
-   // Mapeamento por ALT
+  // Mapeamento por ALT
   const routes = {
     'Boletim':   'registrar.html',
         'Indivíduo': 'participantes.html',
@@ -92,5 +92,27 @@
   });
 })();
 </script>
+
+  <script>
+    // Destaca e navega ao clicar nos ícones do footer.
+    (function footerSetup(){
+      const footer = document.getElementById('footer');
+      const icons  = footer.querySelectorAll('img');
+
+      icons.forEach(img=>{
+        img.addEventListener('click', ()=>{
+          icons.forEach(i=>i.classList.remove('active'));
+          img.classList.add('active');
+
+          const alt = img.getAttribute('alt');
+          if(alt === 'Veículo'){ window.location.href = 'veiculos.html'; }
+          if(alt === 'Objeto'){ window.location.href = 'objetos.html'; }
+          if(alt === 'Arma'){ window.location.href = 'armas.html'; }
+          if(alt === 'Indivíduo'){ window.location.href = 'participantes.html'; }
+          if(alt === 'Boletim'){ window.location.href = 'registrar.html'; }
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
