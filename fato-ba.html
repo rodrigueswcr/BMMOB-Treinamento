@@ -145,6 +145,39 @@
     </div>
   </div>
 
+  <script>
+(function footerRouter(){
+  const footer = document.querySelector('.footer');
+  if (!footer) return;
+
+  // Mapeamento por ALT
+  const routes = {
+    'Objeto':    'objetos.html',
+    'Arma':      'armas.html',
+    'Indivíduo': 'participantes.html',
+    'Boletim':   'registrar.html',
+    'Veículo':   'veiculos.html'
+    // 'Outros' permanece sem navegação
+  };
+
+  // Delegação de eventos no footer (um único listener)
+  footer.addEventListener('click', (ev) => {
+    const img = ev.target.closest('img');
+    if (!img) return;
+    const alt = img.getAttribute('alt');
+    const href = routes[alt];
+    if (!href) return;
+
+    // Mantém o destaque visual
+    footer.querySelectorAll('img').forEach(i => i.classList.remove('active'));
+    img.classList.add('active');
+
+    // Navega
+    window.location.href = href;
+  });
+})();
+</script>
+
   <!-- Painel FATO -->
   <div class="fato-overlay" id="fatoOverlay" role="dialog" aria-modal="true">
     <div class="fato-sheet">

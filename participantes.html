@@ -54,14 +54,49 @@
       <button class="btn" id="btnAdicionar">ADICIONAR</button>
     </div>
 
+    <!-- Footer igual ao registrar.html -->
     <div class="footer">
       <img src="img/doc.png" alt="Boletim">
       <img src="img/user.png" alt="Indivíduo" class="active">
-      <img src="img/car.png" alt="Veículo">
+      <img src="img/object.png" alt="Objeto">
       <img src="img/gun.png" alt="Arma">
+      <img src="img/car.png" alt="Veículo">
       <img src="img/doc.png" alt="Outros">
     </div>
   </div>
+
+  <script>
+(function footerRouter(){
+  const footer = document.querySelector('.footer');
+  if (!footer) return;
+
+  // Mapeamento por ALT
+  const routes = {
+    'Objeto':    'objetos.html',
+    'Arma':      'armas.html',
+    'Indivíduo': 'participantes.html',
+    'Boletim':   'registrar.html',
+    'Veículo':   'veiculos.html'
+    // 'Outros' permanece sem navegação
+  };
+
+  // Delegação de eventos no footer (um único listener)
+  footer.addEventListener('click', (ev) => {
+    const img = ev.target.closest('img');
+    if (!img) return;
+    const alt = img.getAttribute('alt');
+    const href = routes[alt];
+    if (!href) return;
+
+    // Mantém o destaque visual
+    footer.querySelectorAll('img').forEach(i => i.classList.remove('active'));
+    img.classList.add('active');
+
+    // Navega
+    window.location.href = href;
+  });
+})();
+</script>
 
   <script>
     document.getElementById('btnBack').addEventListener('click', ()=>{ 

@@ -51,7 +51,7 @@
       <img class="icon" src="img/check.png" alt="Avançar" id="btnNext">
     </div>
 
-    <div class="content">
+    <div class="content" id="content">
       <div class="label-bar">
         <label for="historico">Histórico</label>
         <button class="mic-btn" id="btnMic" title="Iniciar ditado" aria-label="Iniciar ditado">
@@ -65,6 +65,9 @@
       <button class="btn btn-secondary" id="btnAtendentes">OUTROS ATENDENTES</button>
       <button class="btn btn-secondary" id="btnDocumentos">OUTROS DOCUMENTOS</button>
       <button class="btn btn-secondary" id="btnOrgaos">OUTROS ÓRGÃOS</button>
+
+      <!-- NOVO BOTÃO -->
+      <button class="btn btn-secondary" id="btnGerarDocs">GERAR DOCUMENTOS</button>
     </div>
 
     <!-- Pager Unificado -->
@@ -86,6 +89,39 @@
       <img src="img/doc.png" alt="Outros">
     </div>
   </div>
+
+  <script>
+(function footerRouter(){
+  const footer = document.querySelector('.footer');
+  if (!footer) return;
+
+  // Mapeamento por ALT
+  const routes = {
+    'Objeto':    'objetos.html',
+    'Arma':      'armas.html',
+    'Indivíduo': 'participantes.html',
+    'Boletim':   'registrar.html',
+    'Veículo':   'veiculos.html'
+    // 'Outros' permanece sem navegação
+  };
+
+  // Delegação de eventos no footer (um único listener)
+  footer.addEventListener('click', (ev) => {
+    const img = ev.target.closest('img');
+    if (!img) return;
+    const alt = img.getAttribute('alt');
+    const href = routes[alt];
+    if (!href) return;
+
+    // Mantém o destaque visual
+    footer.querySelectorAll('img').forEach(i => i.classList.remove('active'));
+    img.classList.add('active');
+
+    // Navega
+    window.location.href = href;
+  });
+})();
+</script>
 
   <script>
     (function footerSelectable(){
@@ -124,7 +160,7 @@
       window.location.href = 'participantes.html'; 
     });
 
-    // Web Speech
+    // Ditado (Web Speech API)
     let rec = null, recognizing = false;
     (function setupSpeech(){
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -154,7 +190,7 @@
       if(recognizing) rec.stop(); else { try{ rec.start(); }catch(_){ } }
     });
 
-    // Botões adicionais
+    // Botões adicionais existentes
     document.getElementById('btnViatura').addEventListener('click', () => {
       salvarHistorico();
       window.location.href = 'viatura.html';
@@ -171,9 +207,15 @@
       salvarHistorico();
       window.location.href = 'outros-orgaos.html';
     });
+
+    // NOVO: Gerar documentos
+    document.getElementById('btnGerarDocs').addEventListener('click', () => {
+      salvarHistorico();
+      window.location.href = 'gerar-documentos.html';
+    });
   </script>
 
-  <!-- MOD 1: Salvar ao navegar pelas bolinhas do pager -->
+  <!-- Salvar ao clicar nas bolinhas do pager -->
   <script>
     document.querySelectorAll('.pager-dots a').forEach(a=>{
       a.addEventListener('click', (e)=>{
@@ -184,37 +226,43 @@
     });
   </script>
 
-  <!-- MOD 2: SWIPE LATERAL salvando antes de trocar -->
+  <!-- Swipe lateral entre páginas (salvando antes de trocar) -->
   <script>
-  (function enableSwipePages(){
-    const ROUTE = ['registrar.html','questionario.html','fato-ba.html','localizacao.html','historico.html'];
-    const here = (location.pathname.split('/').pop() || 'historico.html').toLowerCase();
-    const idx = ROUTE.indexOf(here);
+    (function enableSwipePages(){
+      const ROUTE = ['registrar.html','questionario.html','fato-ba.html','localizacao.html','historico.html'];
+      const here = (location.pathname.split('/').pop() || 'historico.html').toLowerCase();
+      const idx = ROUTE.indexOf(here);
 
-    let x0=null, y0=null, t0=0;
-    const THRESH = 50, MAX_TIME = 600, V_SLOPE = 0.5;
-    const unify = (e)=> e.changedTouches ? e.changedTouches[0] : e;
+      let x0=null, y0=null, t0=0;
+      const THRESH = 60, MAX_TIME = 600, MAX_OFFAXIS = 80;
 
-    function onStart(e){ const p=unify(e); x0=p.clientX; y0=p.clientY; t0=Date.now(); }
-    function onEnd(e){
-      if(x0===null) return;
-      const p=unify(e), dx=p.clientX-x0, dy=p.clientY-y0, dt=Date.now()-t0;
-      const horizontal = Math.abs(dx)>THRESH && Math.abs(dy)<Math.abs(dx)*V_SLOPE && dt<MAX_TIME;
-      if(horizontal){
-        if(dx<0 && idx<ROUTE.length-1){
+      function onStart(e){
+        const t = e.touches ? e.touches[0] : e;
+        x0 = t.clientX; y0 = t.clientY; t0 = Date.now();
+      }
+      function onEnd(e){
+        if(x0==null) return;
+        const t = e.changedTouches ? e.changedTouches[0] : e;
+        const dx = t.clientX - x0;
+        const dy = t.clientY - y0;
+        const dt = Date.now() - t0;
+        x0 = y0 = null;
+
+        if(Math.abs(dy) > MAX_OFFAXIS || dt > MAX_TIME || Math.abs(dx) < THRESH) return;
+
+        if(dx < 0 && idx < ROUTE.length-1){
           salvarHistorico();
-          location.href=ROUTE[idx+1];
-        } else if(dx>0 && idx>0){
+          window.location.href = ROUTE[idx+1];
+        } else if(dx > 0 && idx > 0){
           salvarHistorico();
-          location.href=ROUTE[idx-1];
+          window.location.href = ROUTE[idx-1];
         }
       }
-      x0=null;
-    }
 
-    window.addEventListener('touchstart', onStart, {passive:true});
-    window.addEventListener('touchend', onEnd, {passive:true});
-  })();
+      const area = document.getElementById('content');
+      area.addEventListener('touchstart', onStart, {passive:true});
+      area.addEventListener('touchend', onEnd);
+    })();
   </script>
 </body>
 </html>
