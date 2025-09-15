@@ -1,116 +1,119 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Boletim</title>
   <style>
     * { box-sizing: border-box; }
-
+    html, body { height: 100%; margin: 0; }
     body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #f1f1f1;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f1f1f1;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100dvh;
     }
 
     .container {
-      background-color: #fff;   /* mesmo padrão registrar.html */
+      background: #fff;
       width: 100%;
       max-width: 400px;
-      height: 100%;
+      height: 100dvh;
       display: flex;
       flex-direction: column;
     }
 
-    .header {
-      background-color: #333;
+    /* Topbar */
+    .topbar {
+      background: #333;
       color: #fff;
-      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
       font-weight: bold;
-      text-transform: uppercase;
-      padding: 12px;
-      text-align: center;
+      font-size: 18px;
       flex-shrink: 0;
     }
+    .topbar .icon {
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+    }
+    .topbar .spacer {
+      flex: 1;
+    }
 
+    /* Conteúdo */
     .content {
       flex: 1;
+      padding: 16px;
       overflow-y: auto;
-      padding: 20px;
+    }
+
+    /* Footer */
+    .footer {
       display: flex;
-      flex-direction: column;
-      justify-content: center;
+      justify-content: space-around;
+      padding: 12px 8px;
+      background: #fff;
+      border-top: 1px solid #ccc;
+      flex-shrink: 0;
     }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-    }
-
-    .item {
+    .footer .btn {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      cursor: pointer;
+      font-size: 28px; /* dobro do tamanho */
+      color: #333;
       text-decoration: none;
     }
-
-    .item img {
-      width: 70px;
-      height: 70px;
-      object-fit: contain;
-      margin-bottom: 8px;
-    }
-
-    .item span {
-      font-size: 14px;
+    .footer .btn.active span {
+      color: #2f6f73;
       font-weight: bold;
-      color: #333;
     }
-
-    .version {
-      font-size: 12px;
-      color: #555;
-      margin: 12px auto;
-      text-align: center;
+    .footer .icon {
+      width: 64px;  /* dobro */
+      height: 64px; /* dobro */
+    }
+    .footer span {
+      margin-top: 6px;
+      font-size: 28px; /* dobro */
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="header">Boletim</div>
+    <!-- Topbar -->
+    <div class="topbar">
+      <img src="img/back.png" class="icon" onclick="history.back()">
+      <div class="spacer"></div>
+      <span>Boletim</span>
+      <div class="spacer"></div>
+    </div>
 
+    <!-- Conteúdo -->
     <div class="content">
-      <div class="grid">
-        <a href="registrar.html" class="item">
-          <img src="img/registrar.png" alt="Registrar">
-          <span>Registrar</span>
-        </a>
-        <a href="consultar.html" class="item">
-          <img src="img/consultar.png" alt="Consultar">
-          <span>Consultar</span>
-        </a>
-        <a href="consultarv.html" class="item">
-          <img src="img/consultarv.png" alt="Consultar Veículo">
-          <span>Consultar veículo</span>
-        </a>
-        <a href="consultari.html" class="item">
-          <img src="img/consultari.png" alt="Consultar Indivíduo">
-          <span>Consultar indivíduo</span>
-        </a>
-        <a href="consultara.html" class="item">
-          <img src="img/consultara.png" alt="Consultar Arma">
-          <span>Consultar arma</span>
-        </a>
-      </div>
+      <h2>Conteúdo do Boletim</h2>
+      <p>Aqui vai o conteúdo da página boletim.html...</p>
+    </div>
 
-      <div class="version">Versão atual: 2.9.4 (Treinamento)</div>
+    <!-- Footer -->
+    <div class="footer">
+      <a href="registrar.html" class="btn">
+        <img src="img/home.png" class="icon">
+        <span>Início</span>
+      </a>
+      <a href="boletim.html" class="btn active">
+        <img src="img/file.png" class="icon">
+        <span>Boletim</span>
+      </a>
+      <a href="participantes.html" class="btn">
+        <img src="img/user.png" class="icon">
+        <span>Usuário</span>
+      </a>
     </div>
   </div>
 </body>
