@@ -38,10 +38,10 @@
 <body>
   <div class="container">
     <div class="topbar">
-      <img class="icon" src="img/back.png" alt="Voltar" onclick="window.location.href='registrar.html'">
+      <img class="icon" src="img/back.png" alt="Voltar" onclick="window.location.href='fato-ba.html'">
       <div>BOLETIM</div>
       <div class="spacer"></div>
-      <img class="icon" src="img/check.png" alt="Avançar" onclick="window.location.href='fato-ba.html'">
+      <img class="icon" src="img/check.png" alt="Avançar" onclick="window.location.href='localizacao.html'">
     </div>
 
     <div class="content">
@@ -120,13 +120,15 @@
       <div style="height:8px"></div>
     </div>
 
-    <div class="pager-dots" aria-label="Progresso">
-      <a class="pager-dot" href="registrar.html" title="Registrar"></a>
-      <a class="pager-dot active" href="questionario.html" title="Questionário"></a>
-      <a class="pager-dot" href="fato-ba.html" title="Fato"></a>
-      <a class="pager-dot" href="localizacao.html" title="Localização"></a>
-      <a class="pager-dot" href="historico.html" title="Histórico"></a>
-    </div>
+    <!-- PAGER (5 etapas): Registrar → Fato → Questionário (ativo) → Localização → Histórico -->
+<div class="pager-dots" aria-label="Progresso">
+  <a class="pager-dot" href="registrar.html" title="Etapa 1: Registrar"></a>
+  <a class="pager-dot" href="fato-ba.html" title="Etapa 2: Fato"></a>
+  <a class="pager-dot active" href="questionario.html" title="Etapa 3: Questionário"></a>
+  <a class="pager-dot" href="localizacao.html" title="Etapa 4: Localização"></a>
+  <a class="pager-dot" href="historico.html" title="Etapa 5: Histórico"></a>
+</div>
+
 
     <!-- Footer igual ao registrar.html -->
     <div class="footer">
