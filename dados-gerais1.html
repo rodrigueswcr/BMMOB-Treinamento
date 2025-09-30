@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Participante - Dados Gerais (1)</title>
+  <style>
+    *{box-sizing:border-box}
+    html, body { height:100%; }
+    body{
+      margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f1f1;
+      display:flex;justify-content:center;align-items:center;min-height:100dvh;
+    }
+    .container{
+      background:#fff;width:100%;max-width:400px;height:100dvh;
+      display:flex;flex-direction:column;
+    }
+
+    /* Topbar */
+    .topbar{
+      background:#333;color:#fff;display:flex;align-items:center;justify-content:space-between;
+      padding:10px 12px;font-weight:bold;flex-shrink:0;
+    }
+    .topbar .title{ text-transform:uppercase; letter-spacing:.5px; }
+    .topbar img{ width:22px;height:22px;cursor:pointer; }
+
+    /* Conteúdo */
+    .subtitle{ text-align:center; color:#444; font-weight:bold; margin:6px 0 10px 0; }
+    .content{flex:1;overflow-y:auto;padding:12px 16px 16px 16px}
+
+    label{display:block;font-size:12px;color:#2f6f73;margin:10px 0 6px}
+    .req::before{content:"* "; color:#d00; font-weight:bold}
+
+    select, input[type="text"]{
+      width:100%; padding:10px 12px; border:1px solid #ccc; border-radius:6px;
+      background:#fff; font-size:14px; outline:none;
+    }
+    select:focus, input[type="text"]:focus{border-color:#888}
+
+    /* ===== Presente: SIM à esquerda, NÃO centralizado; linhas cobrindo a largura com vão no centro ===== */
+    .presente-group{ margin-top:14px; }
+    .choices{
+      width:100%;
+      display:flex; align-items:center;
+    }
+    .choices label{
+      width:50%; /* cada um ocupa metade do container */
+      display:inline-flex; align-items:center; gap:40px; /* dobro da distância texto ↔ bolinha */
+      cursor:pointer; padding-bottom:8px; position:relative;
+    }
+    .choices label.left{ justify-content:flex-start; }   /* SIM à esquerda */
+    .choices label.right{ justify-content:center; }      /* NÃO centralizado */
+
+    /* linha sob cada metade com pequeno vão no centro */
+    .choices label.left::after{
+      content:""; position:absolute; left:0; right:8px; bottom:0; height:1px; background:#cfcfcf;
+    }
+    .choices label.right::after{
+      content:""; position:absolute; left:8px; right:0; bottom:0; height:1px; background:#cfcfcf;
+    }
+
+    .choices label span{ color:#9aa0a6; font-size:14px; }
+    .choices label:has(input:checked) span{ color:#222; }
+    .choices input[type="radio"]{ margin:0; }
+
+    /* Pager clicável */
+    .pager-dots{
+      display:flex;justify-content:center;align-items:center;gap:8px;padding:8px 0
+    }
+    .pager-dot{
+      display:inline-block;width:8px;height:8px;border-radius:50%;
+      background:#cdd2d3;text-decoration:none;
+    }
+    .pager-dot:hover{ filter:brightness(0.9); }
+    .pager-dot.active{ background:#2f6f73; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Topbar -->
+    <div class="topbar">
+      <img src="img/back.png" alt="Voltar" id="btnBack">
+      <div class="title">DADOS GERAIS</div>
+      <img src="img/check.png" alt="Confirmar" id="btnSave">
+    </div>
+
+    <div class="subtitle">BOLETIM DE OCORRÊNCIA</div>
+
+    <!-- Formulário -->
+    <div class="content">
+      <!-- Tipo de Participação -->
+      <label class="req" for="tipo">Tipo de Participação</label>
+      <select id="tipo" required>
+        <option value="" selected disabled>Selecione...</option>
+        <option>Só comunicante</option>
+        <option>Vítima</option>
+        <option>Testemunha</option>
+        <option>Suspeito</option>
+        <option>Adolescente infrator</option>
+        <option>Foragido</option>
+        <option>Autor</option>
+        <option>Atendido</option>
+        <option>Abordado</option>
+        <option>Preso/Aprendido</option>
+        <option>Comunicante Policial</option>
+      </select>
+
+      <!-- Presente -->
+      <div class="presente-group" role="radiogroup" aria-label="Presente">
+        <label class="req" for="presente-opcoes" style="margin-bottom:0;">Presente</label>
+        <div id="presente-opcoes" class="choices">
+          <label class="left"><span>Sim</span><input type="radio" name="presente" value="Sim"></label>
+          <label class="right"><span>Não</span><input type="radio" name="presente" value="Não"></label>
+        </div>
+      </div>
+
+      <!-- Condição Física -->
+      <label for="condicao" style="margin-top:14px;">Condição Física</label>
+      <select id="condicao">
+        <option value="" selected disabled>Selecione...</option>
+        <option>Normal</option>
+        <option>Medicado</option>
+        <option>Hospitalizado</option>
+        <option>Morto</option>
+        <option>Ferido</option>
+      </select>
+
+      <!-- Local de Atendimento -->
+      <label for="local" style="margin-top:14px;">Local de Atendimento</label>
+      <select id="local">
+        <option value="" selected disabled>Selecione...</option>
+        <option>No local</option>
+        <option>UPA</option>
+        <option>Hospital</option>
+        <option>Posto de Saúde</option>
+        <option>Outro</option>
+      </select>
+    </div>
+
+    <!-- Pager (agora com links para 1, 2, 3 e 4) -->
+    <div class="pager-dots" aria-label="Progresso">
+      <a class="pager-dot active" href="dados-gerais1.html" aria-label="Página 1"></a>
+      <a class="pager-dot" href="dados-gerais2.html" aria-label="Página 2"></a>
+      <a class="pager-dot" href="dados-gerais3.html" aria-label="Página 3"></a>
+      <a class="pager-dot" href="dados-gerais4.html" aria-label="Página 4"></a>
+    </div>
+  </div>
+
+  <script>
+    /* ===== Persistência mínima ===== */
+    const KEY_LISTA = 'participantes_lista';
+
+    function getLista(){ try { return JSON.parse(sessionStorage.getItem(KEY_LISTA)||'[]'); } catch { return []; } }
+    function setLista(arr){ sessionStorage.setItem(KEY_LISTA, JSON.stringify(arr)); }
+
+    function validar(){
+      const tipo = document.getElementById('tipo').value;
+      const presente = document.querySelector('input[name="presente"]:checked')?.value || '';
+
+      if(!tipo){ alert('Selecione o TIPO DE PARTICIPAÇÃO.'); return false; }
+      if(!presente){ alert('Informe se o participante está PRESENTE.'); return false; }
+      return true;
+    }
+
+    function salvar(){
+      if(!validar()) return;
+
+      const item = {
+        id: 'p_' + Date.now(),
+        tipo: document.getElementById('tipo').value,
+        presente: document.querySelector('input[name="presente"]:checked')?.value || '',
+        condicao: document.getElementById('condicao').value || '',
+        local: document.getElementById('local').value || ''
+      };
+
+      const arr = getLista();
+      arr.unshift(item);
+      setLista(arr);
+
+      // Avança para a segunda tela (pager 2)
+      window.location.href = 'dados-gerais2.html';
+    }
+
+    document.getElementById('btnSave').addEventListener('click', salvar);
+    document.getElementById('btnBack').addEventListener('click', ()=>{
+      if(history.length>1) history.back(); else window.location.href='participantes.html';
+    });
+  </script>
+</body>
+</html>

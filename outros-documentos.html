@@ -91,11 +91,21 @@
       docExame:$('docExame'),
     };
 
+    // Mapeia rótulos para montar a lista que o histórico enxerga
+    const LABEL = {
+      docBOT:  'BOT',
+      docTTAA: 'TTAA',
+      docProc: 'Nº Processo Judicial',
+      docExame:'Exame clínico/TPT'
+    };
+
     function load(){
       try{
         const data = JSON.parse(sessionStorage.getItem(K.docs) || '{}');
         for(const k in fields){ if(data[k]) fields[k].value = data[k]; }
       }catch{}
+      // mantém contador correto ao abrir a tela
+      syncDocsCounters();
     }
 
     function snapshot(){
@@ -104,24 +114,46 @@
       return data;
     }
 
+    // Constrói a "lista" de documentos preenchidos para o histórico
+    function buildDocsArray(data){
+      const arr = [];
+      for(const k in data){
+        const v = (data[k]||'').trim();
+        if(v){
+          arr.push({ id:k, label: LABEL[k] || k, value: v });
+        }
+      }
+      return arr;
+    }
+
+    // >>> Sincroniza com historico.html (badges)
+    function syncDocsCounters(){
+      const data = snapshot();
+      const arr  = buildDocsArray(data);
+      sessionStorage.setItem('documentosCount', String(arr.length));
+      sessionStorage.setItem('outrosDocumentos', JSON.stringify(arr));
+    }
+
     function save(showToast=false){
-      sessionStorage.setItem(K.docs, JSON.stringify(snapshot()));
+      const data = snapshot();
+      sessionStorage.setItem(K.docs, JSON.stringify(data));
+      syncDocsCounters();
       if(showToast) alert('Outros Documentos salvos.');
     }
 
-    // auto-save a cada digitação
+    // auto-save a cada digitação (e atualiza contadores)
     for(const k in fields){
       fields[k].addEventListener('input', ()=> save(false));
     }
 
     // ações topo
     $('btnBack').addEventListener('click', ()=>{
-      save(false);
+      save(false); // garante contador certo
       if(history.length>1) history.back(); else window.location.href='historico.html';
     });
     $('btnSave').addEventListener('click', ()=> save(true));
 
-    // botão principal (mantenho como navegação — ajuste se tiver outra página)
+    // botão principal (mantido como navegação — ajuste se tiver outra página)
     $('btnAuto').addEventListener('click', ()=>{
       save(false);
       // Ex.: window.location.href = 'auto-infracao.html';

@@ -115,6 +115,7 @@
   </div>
 
   <script>
+    /* ====== Banco simulado RG -> Nome ====== */
     const DB_RG = [
       { rg: '102345678', nome: 'João Marcelo de Souza' },
       { rg: '112223334', nome: 'Mariana Alves Pereira' },
@@ -141,19 +142,29 @@
 
     function onlyDigits(el){ el.addEventListener('input', e=>{ e.target.value = e.target.value.replace(/\D+/g,''); }); }
 
-    const rgInput   = document.getElementById('rg');
-    const rgMatchEl = document.getElementById('rgMatch');
+    const rgInput      = document.getElementById('rg');
+    const rgMatchEl    = document.getElementById('rgMatch');
     const btnAdicionar = document.getElementById('btnAdicionar');
-    const rgListEl  = document.getElementById('rgList');
+    const rgListEl     = document.getElementById('rgList');
+    const suggestList  = document.getElementById('rgSuggestList');
 
-    const suggestList = document.getElementById('rgSuggestList');
-
-    const K = { lista: 'outros_atendentes_lista' };
-    let activeIndex = -1;
+    /* ===== Persistência local desta página ===== */
+    const K = { lista: 'outros_atendentes_lista' }; // mantido como você usava
 
     function getLista(){ try { return JSON.parse(sessionStorage.getItem(K.lista)||'[]'); } catch { return []; } }
-    function setLista(arr){ sessionStorage.setItem(K.lista, JSON.stringify(arr)); }
 
+    // >>> SINCRONIZA COM O HISTÓRICO (chaves lidas pelo historico.html)
+    function syncAtendentesCounters(arr){
+      sessionStorage.setItem('atendentesCount', String(arr.length));
+      sessionStorage.setItem('outrosAtendentes', JSON.stringify(arr));
+    }
+
+    function setLista(arr){
+      sessionStorage.setItem(K.lista, JSON.stringify(arr));
+      syncAtendentesCounters(arr); // atualiza contador sempre que a lista muda
+    }
+
+    /* ===== Match RG -> Nome ===== */
     function atualizarMatch(){
       const valor = rgInput.value.trim();
       const nome = DB_MAP.get(valor);
@@ -171,6 +182,9 @@
         rgMatchEl.classList.add('empty');
       }
     }
+
+    /* ===== Autocomplete de RG ===== */
+    let activeIndex = -1;
 
     function filtrarRG(query){
       if(!query) return [];
@@ -248,6 +262,7 @@
       }
     });
 
+    /* ===== Lista de atendentes ===== */
     function renderLista(){
       const arr = getLista();
       rgListEl.innerHTML = '';
@@ -255,6 +270,7 @@
         const card = document.createElement('div');
         card.className = 'rg-card';
         card.dataset.id = it.id;
+        card.setAttribute('data-item','1'); // ajuda contagens por DOM se precisar
 
         const ttl = document.createElement('p');
         ttl.className = 'rg-title';
@@ -277,12 +293,15 @@
 
         rgListEl.appendChild(card);
       }
+
+      // garante que o histórico verá a contagem correta ao abrir/atualizar esta tela
+      syncAtendentesCounters(arr);
     }
 
     function excluirItem(id){
       const arr = getLista().filter(x=>x.id!==id);
-      setLista(arr);
-      renderLista();
+      setLista(arr);      // salva e sincroniza contador
+      renderLista();      // re-render e sincroniza novamente
     }
 
     function validar(){
@@ -303,8 +322,9 @@
       const item = { id: 'oa_' + Date.now(), rg: rgLimpo, nome: nomeDB };
       arr.unshift(item);
 
-      setLista(arr);
-      renderLista();
+      setLista(arr);   // salva e sincroniza contador
+      renderLista();   // re-render e sincroniza novamente
+
       rgInput.value='';
       atualizarMatch();
       fecharSugestoes();
@@ -312,7 +332,11 @@
 
     btnAdicionar.addEventListener('click', salvar);
     rgInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter' && suggestList.style.display!=='block'){ e.preventDefault(); salvar(); } });
+
     document.getElementById('btnBack').addEventListener('click', ()=>{
+      // antes de sair, garante que o contador está certo
+      const arr = getLista();
+      syncAtendentesCounters(arr);
       if(history.length>1) history.back(); else window.location.href='historico.html';
     });
 

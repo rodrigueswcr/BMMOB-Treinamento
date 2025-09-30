@@ -189,8 +189,9 @@
         <option>OSÓRIO - ESFES - BM</option>
       </select>
 
-      <select id="operacao" class="form-select" required>
-        <option value="" disabled selected>* Operação</option>
+      <!-- Campo OPERAÇÃO agora opcional (sem required) -->
+      <select id="operacao" class="form-select">
+        <option value="" disabled selected> Operação</option>
         <option>Eleições 2022</option>
         <option>Operação 45º Expointer</option>
         <option>Operação AVANTE</option>
@@ -399,13 +400,13 @@
       const comunicacao = document.querySelector('input[name="comunicacao"]:checked');
 
       if (!orgao) { alert("O campo Órgão é obrigatório!"); return; }
-      if (!operacao) { alert("O campo Operação é obrigatório!"); return; }
+      // Campo Operação é opcional (validação removida)
       if (!tipoSelecionado) { alert("O campo Tipo de Boletim é obrigatório!"); return; }
       if (!comunicacao) { alert("O campo Forma de Comunicação é obrigatório!"); return; }
 
       // Salva no sessionStorage para uso nas próximas telas
       sessionStorage.setItem('reg_orgao', orgao);
-      sessionStorage.setItem('reg_operacao', operacao);
+      sessionStorage.setItem('reg_operacao', operacao); // continua sendo salvo, se existir
       sessionStorage.setItem('reg_tipo', tipoSelecionado);
       sessionStorage.setItem('reg_comunicacao', comunicacao.id || 'outros');
       sessionStorage.setItem('reg_datahora', document.getElementById('dataHora').textContent.trim());

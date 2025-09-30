@@ -54,7 +54,7 @@
     .pager-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#cdd2d3}
     .pager-dot.active{background:#2f6f73}
 
-    /* Footer igual ao registrar.html */
+    /* Footer igual ao registrar.html (pode não existir nesta tela) */
     .footer{display:flex;justify-content:space-around;background-color:#2f6f73;padding:10px 0;flex-shrink:0}
     .footer img{cursor:pointer;width:28px;height:28px;transition:.2s;filter:grayscale(30%) brightness(0.9)}
     .footer img:hover{width:32px;height:32px;filter:grayscale(0%) brightness(1.2)}
@@ -64,7 +64,7 @@
 <body>
   <div class="container">
     <div class="topbar">
-      <img src="img/back.png" alt="Voltar" onclick="window.location.href='historico.html'">
+      <img src="img/back.png" alt="Voltar" id="btnBack">
       <div class="title">Gerar documentos</div>
       <span style="width:22px;height:22px;"></span>
     </div>
@@ -90,12 +90,23 @@
     
   <script>
     // Persistência simples
-    const K = { lista: 'docs_modelos' };
+    const K = { lista: 'docs_modelos' }; // mantém sua chave existente
+
+    // Chaves que o historico.html lê para o badge
+    const LIST_KEY_HIST  = 'docsGerados';
+    const COUNT_KEY_HIST = 'gerarDocsCount';
+
     function getLista(){ try { return JSON.parse(sessionStorage.getItem(K.lista)||'[]'); } catch { return []; } }
-    function setLista(arr){ sessionStorage.setItem(K.lista, JSON.stringify(arr)); }
+    function setLista(arr){
+      // salva nesta página
+      sessionStorage.setItem(K.lista, JSON.stringify(arr));
+      // >>> sincroniza com o histórico
+      sessionStorage.setItem(LIST_KEY_HIST, JSON.stringify(arr));
+      sessionStorage.setItem(COUNT_KEY_HIST, String(arr.length));
+    }
 
     const modelo = document.getElementById('modelo');
-    const lista = document.getElementById('lista');
+    const lista  = document.getElementById('lista');
     const btnAdd = document.getElementById('btnAdd');
 
     function render(){
@@ -106,30 +117,34 @@
         p.className = 'empty';
         p.textContent = 'Nenhum documento gerado.';
         lista.appendChild(p);
-        return;
-      }
-      data.forEach((it, idx)=>{
-        const div = document.createElement('div');
-        div.className = 'item';
-        div.innerHTML = `
-          <span>${it}</span>
-          <div class="actions">
-            <button class="action" data-i="${idx}" data-act="del">Excluir</button>
-          </div>
-        `;
-        lista.appendChild(div);
-      });
-
-      // excluir
-      lista.querySelectorAll('button[data-act="del"]').forEach(b=>{
-        b.addEventListener('click', ()=>{
-          const i = Number(b.dataset.i);
-          const all = getLista();
-          all.splice(i,1);
-          setLista(all);
-          render();
+      } else {
+        data.forEach((it, idx)=>{
+          const div = document.createElement('div');
+          div.className = 'item';
+          div.setAttribute('data-item','1'); // ajuda contagens por DOM, se necessário
+          div.innerHTML = `
+            <span>${it}</span>
+            <div class="actions">
+              <button class="action" data-i="${idx}" data-act="del">Excluir</button>
+            </div>
+          `;
+          lista.appendChild(div);
         });
-      });
+
+        // excluir
+        lista.querySelectorAll('button[data-act="del"]').forEach(b=>{
+          b.addEventListener('click', ()=>{
+            const i = Number(b.dataset.i);
+            const all = getLista();
+            all.splice(i,1);
+            setLista(all); // salva + sincroniza contador
+            render();
+          });
+        });
+      }
+
+      // garante contador coerente mesmo ao abrir direto esta tela
+      setLista(data);
     }
 
     render();
@@ -142,19 +157,30 @@
       }
       const all = getLista();
       all.push(modelo.options[modelo.selectedIndex].text);
-      setLista(all);
+      setLista(all); // salva + sincroniza
       render();
-      // mantém o modelo selecionado (igual ao uso em mobile)
+      // mantém o modelo selecionado (comportamento mobile)
     });
 
-    // Footer visual
+    // Voltar garantindo sincronização
+    document.getElementById('btnBack').addEventListener('click', ()=>{
+      const arr = getLista();
+      setLista(arr); // regrava e sincroniza antes de sair
+      window.location.href='historico.html';
+    });
+
+    // Segurança extra: sincroniza ao perder a página
+    window.addEventListener('beforeunload', ()=>{ setLista(getLista()); });
+    document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden'){ setLista(getLista()); } });
+
+    // Footer visual (se existir footer nesta tela)
     (function footerSelectable(){
       const icons=document.querySelectorAll('.footer img');
+      if(!icons.length) return;
       icons.forEach(img=>img.addEventListener('click',()=>{
         icons.forEach(i=>i.classList.remove('active')); img.classList.add('active');
       }));
     })();
-
   </script>
 </body>
 </html>

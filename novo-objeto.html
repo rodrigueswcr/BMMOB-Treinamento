@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Novo Objeto</title>
+  <style>
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f1f1;
+      display:flex;justify-content:center;align-items:center;min-height:100dvh;
+    }
+    .container{
+      background:#fff;width:100%;max-width:400px;height:100dvh;
+      display:flex;flex-direction:column;
+    }
+
+    /* Topbar */
+    .topbar{
+      background:#333;color:#fff;display:flex;align-items:center;justify-content:space-between;
+      padding:8px 10px;font-weight:bold;flex-shrink:0;font-size:14px;
+    }
+    .topbar .title{flex:1;text-align:center;letter-spacing:.5px;text-transform:uppercase;}
+    .icon-btn{width:24px;height:24px;border:none;background:transparent;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+    .icon{width:18px;height:18px;display:block}
+
+    /* Conteúdo sem rolagem */
+    .content{flex:1;overflow:hidden;padding:10px 12px 12px 12px}
+
+    label{display:block;font-size:12px;color:#2f6f73;margin:6px 0 4px}
+    .req::before{content:"* ";color:#d00;font-weight:bold}
+
+    /* Campos compactos */
+    .input, select, input[type="text"], input[type="number"]{
+      width:100%;padding:6px 10px;border:1px solid #ccc;border-radius:6px;background:#fff;font-size:14px;outline:none;
+    }
+    .input:focus, select:focus, input:focus{border-color:#888}
+
+    /* Autocomplete */
+    .search-wrap{position:relative}
+    .clear-btn{
+      position:absolute;right:6px;top:6px;border:none;background:transparent;color:#888;font-weight:bold;font-size:16px;cursor:pointer;
+      width:24px;height:24px;line-height:24px;border-radius:6px;
+    }
+    .clear-btn:hover{background:#eee}
+    .suggestions{
+      position:absolute;left:0;right:0;top:100%;margin-top:6px;background:#fff;border:1px solid #ccc;border-radius:6px;
+      box-shadow:0 6px 18px rgba(0,0,0,.12);max-height:220px;overflow:auto;z-index:5;display:none;
+    }
+    .suggestions .opt{padding:8px 10px;cursor:pointer;border-bottom:1px solid #eee;font-size:14px}
+    .suggestions .opt:last-child{border-bottom:none}
+    .suggestions .opt:hover, .suggestions .opt.active{background:#f2f7f7}
+
+    .btn{
+      border:1px solid #ccc;background:#fff;border-radius:6px;padding:8px 12px;font-weight:bold;cursor:pointer;font-size:13px;color:#333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Topbar -->
+    <div class="topbar">
+      <button class="icon-btn" aria-label="Voltar" onclick="history.back()">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      <div class="title">NOVO OBJETO</div>
+      <button class="icon-btn" aria-label="Concluir" id="btnOk">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 6L9 17l-5-5"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="content">
+      <!-- Busca de objeto -->
+      <label for="objSearch">Selecione o objeto</label>
+      <div class="search-wrap">
+        <input id="objSearch" class="input" type="text" autocomplete="off" placeholder="Comece a digitar...">
+        <button id="btnClear" class="clear-btn" title="Limpar" aria-label="Limpar" tabindex="-1">×</button>
+        <div id="suggestions" class="suggestions" role="listbox" aria-label="Sugestões"></div>
+      </div>
+
+      <!-- Campos restantes: inicialmente escondidos -->
+      <div id="formRestante" style="margin-top:8px; display:none">
+        <label class="req" for="qtd">Quantidade de Unidade(s)</label>
+        <input id="qtd" type="number" min="1" placeholder="">
+
+        <label class="req" for="corPred">Cor Predominante</label>
+        <select id="corPred">
+          <option value="" selected disabled>Selecione...</option>
+          <option>Preto</option><option>Branco</option><option>Cinzento</option><option>Azul</option>
+          <option>Verde</option><option>Vermelho</option><option>Amarelo</option><option>Marrom</option>
+          <option>Laranja</option><option>Rosa</option><option>Roxo</option><option>Bege</option>
+          <option>Prata</option><option>Dourado</option><option>Transparente</option>
+        </select>
+
+        <label class="req" for="fab">Fabricação</label>
+        <select id="fab">
+          <option value="" selected disabled>Selecione...</option>
+          <option>Nacional</option><option>Importado</option><option>Artesanal</option><option>Desconhecida</option>
+        </select>
+
+        <label for="marca">Marca</label>
+        <input id="marca" type="text" placeholder="">
+
+        <label for="modelo">Modelo</label>
+        <input id="modelo" type="text" placeholder="">
+
+        <label for="serie">Nº de Série</label>
+        <input id="serie" type="text" placeholder="">
+
+        <label for="nf">Nº Nota Fiscal</label>
+        <input id="nf" type="text" placeholder="">
+
+        <label for="valor">Valor Estimado</label>
+        <input id="valor" type="text" placeholder="R$ 0,00">
+
+        <label for="desc">Descrição</label>
+        <input id="desc" type="text" placeholder="">
+
+        <div style="display:flex;justify-content:flex-end;margin-top:10px">
+          <button class="btn" type="button" id="btnSalvar">SALVAR ITEM</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* =========================
+       Base e Autocomplete
+    ==========================*/
+    const OBJETOS = [
+      "Abajur","Abrigo","Absorvente","Acetona","Agulha","Aliança","Alicate","Anel",
+      "Apito","Armação de óculos","Aspirador","Balde","Bola","Bicicleta","Boné",
+      "Bolsa","Bússola","Caderno","Cadeira","Cano","Carteira","Cédula","Celular",
+      "Chave","Colar","Computador","Controle remoto","Copo","Corda","Cortador de unhas",
+      "Documento","Drone","DVD","Escova","Espelho","Estojo","Extintor","Faca","Facão",
+      "Fone de ouvido","Garrafa","Lanterna","Livro","Mala","Martelo","Máscara","Microfone",
+      "Moeda","Notebook","Óculos","Panela","Par de tênis","Pente","Perfume","Relógio",
+      "Revista","Sandália","Serra","Smartwatch","Tablet","Teclado","Tesoura","Tornozeleira",
+      "Uniforme","Violão"
+    ];
+
+    const input  = document.getElementById('objSearch');
+    const sug    = document.getElementById('suggestions');
+    const btnClear = document.getElementById('btnClear');
+    const formRestante = document.getElementById('formRestante');
+
+    let activeIndex = -1, currentList = [];
+
+    function showSuggestions(list){
+      sug.innerHTML = '';
+      if(!list.length){ sug.style.display='none'; return; }
+      list.forEach((txt, idx)=>{
+        const div = document.createElement('div');
+        div.className = 'opt' + (idx===activeIndex?' active':'');
+        div.textContent = txt;
+        div.setAttribute('role','option');
+        div.addEventListener('mousedown', (e)=>{ e.preventDefault(); choose(txt); });
+        sug.appendChild(div);
+      });
+      sug.style.display = 'block';
+    }
+
+    function filter(){
+      const q = input.value.trim().toLowerCase();
+      activeIndex = -1;
+      if(!q){ showSuggestions([]); return; }
+      currentList = OBJETOS.filter(o => o.toLowerCase().includes(q));
+      showSuggestions(currentList.slice(0, 30));
+      saveDraft();
+    }
+
+    function choose(text){
+      input.value = text;
+      sug.style.display = 'none';
+      formRestante.style.display = 'block';
+      document.getElementById('qtd').focus();
+      saveDraft();
+    }
+
+    input.addEventListener('input', filter);
+    input.addEventListener('focus', filter);
+    input.addEventListener('keydown', (e)=>{
+      const items = Array.from(sug.querySelectorAll('.opt'));
+      if(e.key==='ArrowDown'){
+        e.preventDefault();
+        if(items.length===0) return;
+        activeIndex = (activeIndex+1) % items.length;
+        items.forEach((el,i)=>el.classList.toggle('active', i===activeIndex));
+      }else if(e.key==='ArrowUp'){
+        e.preventDefault();
+        if(items.length===0) return;
+        activeIndex = (activeIndex-1+items.length) % items.length;
+        items.forEach((el,i)=>el.classList.toggle('active', i===activeIndex));
+      }else if(e.key==='Enter'){
+        if(activeIndex>=0 && items[activeIndex]){
+          e.preventDefault();
+          choose(items[activeIndex].textContent);
+        }
+      }else if(e.key==='Escape'){
+        sug.style.display='none';
+      }
+    });
+
+    document.addEventListener('click', (e)=>{
+      if(!sug.contains(e.target) && e.target!==input){ sug.style.display='none'; }
+    });
+
+    btnClear.addEventListener('click', ()=>{
+      input.value = '';
+      formRestante.style.display = 'none';
+      filter();
+      input.focus();
+      saveDraft();
+    });
+
+    /* =========================
+       Persistência
+    ==========================*/
+    const ITEMS_KEY  = 'novoobjeto:itens';
+    const DRAFT_KEY  = 'novoobjeto:draft';
+
+    function readItems(){
+      try{
+        const raw = localStorage.getItem(ITEMS_KEY);
+        return raw ? JSON.parse(raw) : [];
+      }catch(e){ return []; }
+    }
+    function writeItems(arr){
+      try{ localStorage.setItem(ITEMS_KEY, JSON.stringify(arr)); }catch(e){}
+    }
+
+    function saveDraft(){
+      const draft = {
+        objeto: input.value,
+        showRest: (formRestante.style.display !== 'none'),
+        qtd: g('qtd'), corPred: g('corPred'), marca: g('marca'), modelo: g('modelo'),
+        serie: g('serie'), nf: g('nf'), fab: g('fab'), valor: g('valor'), desc: g('desc')
+      };
+      try{ localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); }catch(e){}
+    }
+    function loadDraft(){
+      try{
+        const raw = localStorage.getItem(DRAFT_KEY);
+        if(!raw) return;
+        const d = JSON.parse(raw);
+        if(d.objeto){ input.value = d.objeto; }
+        formRestante.style.display = d.showRest ? 'block' : 'none';
+        set('qtd',d.qtd); set('corPred',d.corPred); set('marca',d.marca); set('modelo',d.modelo);
+        set('serie',d.serie); set('nf',d.nf); set('fab',d.fab); set('valor',d.valor); set('desc',d.desc);
+      }catch(e){}
+    }
+    function clearDraft(){ try{ localStorage.removeItem(DRAFT_KEY); }catch(e){} }
+    function g(id){ const el=document.getElementById(id); return el?el.value:''; }
+    function set(id,val){ if(val!==undefined && val!==null){ const el=document.getElementById(id); if(el) el.value=val; } }
+
+    document.querySelectorAll('#formRestante input, #formRestante select')
+      .forEach(el => el.addEventListener('input', saveDraft));
+
+    /* =========================
+       Salvar Item (definitivo)
+    ==========================*/
+    function collectForm(){
+      return {
+        objeto: input.value.trim(),
+        qtd: g('qtd'),
+        corPred: g('corPred'),
+        marca: g('marca').trim(),
+        modelo: g('modelo').trim(),
+        serie: g('serie').trim(),
+        nf: g('nf').trim(),
+        fab: g('fab'),
+        valor: g('valor').trim(),
+        desc: g('desc').trim(),
+        ts: Date.now()
+      };
+    }
+
+    function validateForm(data){
+      if(!data.objeto) return 'Selecione o objeto.';
+      if(formRestante.style.display==='none') return 'Selecione o objeto.';
+      if(!data.qtd || Number(data.qtd) <= 0) return 'Informe a quantidade.';
+      if(!data.corPred) return 'Selecione a cor predominante.';
+      if(!data.fab) return 'Selecione a fabricação.';
+      return '';
+    }
+
+    function saveItem(){
+      const data = collectForm();
+      const err = validateForm(data);
+      if(err){ alert(err); return; }
+      const items = readItems(); items.push(data); writeItems(items);
+      clearDraft();
+      alert('Item salvo com sucesso.');
+      // limpa a tela para novo cadastro
+      input.value = '';
+      formRestante.style.display = 'none';
+      document.querySelectorAll('#formRestante input, #formRestante select').forEach(el=>el.value='');
+      document.getElementById('qtd').value = '';
+      input.focus();
+    }
+
+    document.getElementById('btnSalvar').addEventListener('click', saveItem);
+    document.getElementById('btnOk').addEventListener('click', saveItem);
+
+    // Inicializa
+    loadDraft();
+    if(input.value) filter(); // reabre sugestões se já houver rascunho
+  </script>
+</body>
+</html>

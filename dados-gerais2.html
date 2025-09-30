@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Participante - Dados Gerais (2)</title>
+  <style>
+    *{box-sizing:border-box}
+    html, body { height:100%; }
+    body{
+      margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f1f1;
+      display:flex;justify-content:center;align-items:center;min-height:100dvh;
+    }
+    .container{ background:#fff;width:100%;max-width:400px;height:100dvh;display:flex;flex-direction:column; }
+    .topbar{ background:#333;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:10px 12px;font-weight:bold;flex-shrink:0; }
+    .topbar .title{ text-transform:uppercase; letter-spacing:.5px; }
+    .topbar img{ width:22px;height:22px;cursor:pointer; }
+    .subtitle{ text-align:center; color:#444; font-weight:bold; margin:6px 0 10px 0; }
+    .content{flex:1;overflow-y:auto;padding:12px 16px 16px 16px}
+    label{display:block;font-size:12px;color:#2f6f73;margin:10px 0 6px}
+    .req::before{content:"* "; color:#d00; font-weight:bold}
+    select, input[type="text"]{ width:100%; padding:10px 12px; border:1px solid #ccc; border-radius:6px; background:#fff; font-size:14px; outline:none; }
+    select:focus, input:focus{border-color:#888}
+    .row-2{ display:flex; gap:14px; } .row-2 > .col{ flex:1; }
+    .search-line{ display:flex; gap:10px; align-items:center; margin-top:4px; } .search-line input{ flex:1; }
+    .btn{ border:1px solid #ccc; background:#fff; border-radius:6px; padding:10px 14px; font-weight:bold; cursor:pointer; font-size:13px; color:#333; }
+    .doc-type{ text-align:center; font-weight:bold; color:#111; font-size:22px; margin:14px 0 8px; }
+    .pager-dots{ display:flex;justify-content:center;align-items:center;gap:8px;padding:8px 0 }
+    .pager-dot{ display:inline-block;width:8px;height:8px;border-radius:50%; background:#cdd2d3;text-decoration:none; }
+    .pager-dot:hover{ filter:brightness(0.9); } .pager-dot.active{ background:#2f6f73; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <img src="img/back.png" alt="Voltar" id="btnBack">
+      <div class="title">DADOS GERAIS</div>
+      <img src="img/check.png" alt="Confirmar" id="btnSave">
+    </div>
+
+    <div class="subtitle">DOCUMENTO APRESENTADO</div>
+
+    <div class="content">
+      <label class="req" for="tipoDoc">Tipo</label>
+      <select id="tipoDoc" required>
+        <option>Não apresentou documento</option>
+        <option>Carteira de identidade SSP/RS</option>
+        <option>Carteira de identidade outro Estado</option>
+        <option>Carteira de identidade da Brigada Militar</option>
+        <option>Carteira de identidade do Exército</option>
+        <option>Carteira de identidade da Aeronáutica</option>
+        <option>Carteira de identidade da Marinha</option>
+        <option>Carteira de trabalho - Min. do Trabalho</option>
+        <option>Carteira profissional - CREA, OAB, CRM etc.</option>
+        <option>Certidão de nascimento</option>
+        <option>Certidão de casamento</option>
+        <option>Carteira de motorista</option>
+        <option>Título de eleitor</option>
+        <option>Passaporte</option>
+        <option>Outro</option>
+      </select>
+
+      <label for="numeroDoc" style="margin-top:14px;">Número</label>
+      <input id="numeroDoc" type="text" placeholder="">
+
+      <div class="row-2" style="margin-top:4px;">
+        <div class="col">
+          <label for="emitente">Emitente</label>
+          <input id="emitente" type="text" placeholder="">
+        </div>
+        <div class="col">
+          <label for="uf">UF</label>
+          <select id="uf">
+            <option value="" selected disabled>Selecione...</option>
+            <option>AC</option><option>AL</option><option>AM</option><option>AP</option>
+            <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+            <option>GO</option><option>MA</option><option>MG</option><option>MS</option>
+            <option>MT</option><option>PA</option><option>PB</option><option>PE</option>
+            <option>PI</option><option>PR</option><option>RJ</option><option>RN</option>
+            <option>RO</option><option>RR</option><option>RS</option><option>SC</option>
+            <option>SE</option><option>SP</option><option>TO</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="doc-type">CNH</div>
+
+      <div class="search-line">
+        <input id="cnhNumero" type="text" placeholder="Número">
+        <button class="btn" type="button" id="btnPesquisar">PESQUISAR</button>
+      </div>
+
+      <label for="condutor" style="margin-top:14px;">Condutor</label>
+      <input id="condutor" type="text" placeholder="">
+
+      <div class="row-2" style="margin-top:4px;">
+        <div class="col">
+          <label for="dataNasc">Data Nascimento</label>
+          <input id="dataNasc" type="text" placeholder="">
+        </div>
+        <div class="col">
+          <label for="categoria">Categoria</label>
+          <input id="categoria" type="text" placeholder="">
+        </div>
+      </div>
+
+      <div class="row-2" style="margin-top:4px;">
+        <div class="col">
+          <label for="dataExp">Data Expedição</label>
+          <input id="dataExp" type="text" placeholder="">
+        </div>
+        <div class="col">
+          <label for="dataVal">Data Validade</label>
+          <input id="dataVal" type="text" placeholder="">
+        </div>
+      </div>
+    </div>
+
+    <div class="pager-dots" aria-label="Progresso">
+      <a class="pager-dot" href="dados-gerais1.html" aria-label="Página 1"></a>
+      <a class="pager-dot active" href="dados-gerais2.html" aria-label="Página 2"></a>
+      <a class="pager-dot" href="dados-gerais3.html" aria-label="Página 3"></a>
+      <a class="pager-dot" href="dados-gerais4.html" aria-label="Página 4"></a>
+    </div>
+  </div>
+
+  <!-- Importa o banco compartilhado -->
+  <script src="db.js"></script>
+  <script>
+    /* ===== Persistência local ===== */
+    const STORAGE_KEY = 'DG2_FORM';
+    const fields = ['tipoDoc','numeroDoc','emitente','uf','cnhNumero','condutor','dataNasc','categoria','dataExp','dataVal'];
+
+    function readForm(){
+      const data = {};
+      fields.forEach(id=>{ const el=document.getElementById(id); if(el) data[id]=el.value; });
+      data._updatedAt = new Date().toISOString();
+      return data;
+    }
+    function writeForm(data){
+      if(!data) return;
+      fields.forEach(id=>{ const el=document.getElementById(id); if(el && id in data) el.value = data[id] ?? ''; });
+    }
+    function saveForm(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(readForm())); }catch(e){} }
+    function loadForm(){ try{ const raw=localStorage.getItem(STORAGE_KEY); if(raw) writeForm(JSON.parse(raw)); }catch(e){} }
+    function debounce(fn, wait){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),wait); }; }
+    function hookAutosave(){
+      fields.forEach(id=>{
+        const el=document.getElementById(id); if(!el) return;
+        el.addEventListener(el.tagName==='SELECT'?'change':'input', debounce(saveForm,250));
+      });
+      window.addEventListener('beforeunload', saveForm);
+    }
+
+    // Formata ISO → dd/mm/aaaa para esta tela (inputs de texto)
+    function fmtBR(iso){
+      if(!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso || '';
+      const [y,m,d] = iso.split('-'); return `${d}/${m}/${y}`;
+    }
+
+    // Navegação
+    document.getElementById('btnBack').addEventListener('click', ()=>{ saveForm(); window.location.href='dados-gerais1.html'; });
+    document.getElementById('btnSave').addEventListener('click', ()=>{ saveForm(); window.location.href='dados-gerais3.html'; });
+
+    // Sanitiza CNH para apenas dígitos
+    const cnhInput = document.getElementById('cnhNumero');
+    cnhInput.addEventListener('input', e=>{ e.target.value = e.target.value.replace(/\D/g,''); });
+
+    // Busca CNH no banco compartilhado
+    document.getElementById('btnPesquisar').addEventListener('click', ()=>{
+      const n = (document.getElementById('cnhNumero').value || '').trim();
+      if(!n){ alert('Informe o número da CNH para pesquisar.'); return; }
+      const d = cnhDB[n];
+      if(d){
+        document.getElementById('condutor').value = d.condutor || '';
+        document.getElementById('dataNasc').value = fmtBR(d.dataNasc);
+        document.getElementById('categoria').value = d.categoria || '';
+        document.getElementById('dataExp').value  = fmtBR(d.dataExp);
+        document.getElementById('dataVal').value  = fmtBR(d.dataVal);
+        saveForm();
+      }else{
+        alert('CNH não encontrada.');
+      }
+    });
+
+    // Inicialização
+    loadForm(); hookAutosave();
+  </script>
+</body>
+</html>

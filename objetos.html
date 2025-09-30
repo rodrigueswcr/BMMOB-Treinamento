@@ -45,7 +45,7 @@
     <div class="content">
       <div class="title">OBJETOS</div>
       <button class="btn btn-primary" id="btnAdd">ADICIONAR</button>
-      <!-- você pode listar itens adicionados aqui depois -->
+      <!-- lista de itens adicionados pode ser mostrada aqui -->
       <div id="lista"></div>
     </div>
 
@@ -61,36 +61,37 @@
   </div>
 
   <script>
-(function footerRouter(){
-  const footer = document.querySelector('.footer');
-  if (!footer) return;
-
-   // Mapeamento por ALT
-  const routes = {
-    'Boletim':   'registrar.html',
-        'Indivíduo': 'participantes.html',
-        'Objeto':    'objetos.html',
-        'Arma':      'armas.html',
-        'Veículo':   'veiculos.html',
-        'Outros':    'anexos.html'
-  };
-
-  // Delegação de eventos no footer (um único listener)
-  footer.addEventListener('click', (ev) => {
-    const img = ev.target.closest('img');
-    if (!img) return;
-    const alt = img.getAttribute('alt');
-    const href = routes[alt];
-    if (!href) return;
-
-    // Mantém o destaque visual
-    footer.querySelectorAll('img').forEach(i => i.classList.remove('active'));
-    img.classList.add('active');
-
-    // Navega
-    window.location.href = href;
+  // Botão ADICIONAR redireciona para novo-objeto.html
+  document.getElementById('btnAdd').addEventListener('click', ()=>{
+    window.location.href = 'novo-objeto.html';
   });
-})();
-</script>
+
+  (function footerRouter(){
+    const footer = document.querySelector('.footer');
+    if (!footer) return;
+
+    const routes = {
+      'Boletim':   'registrar.html',
+      'Indivíduo': 'participantes.html',
+      'Objeto':    'objetos.html',
+      'Arma':      'armas.html',
+      'Veículo':   'veiculos.html',
+      'Outros':    'anexos.html'
+    };
+
+    footer.addEventListener('click', (ev) => {
+      const img = ev.target.closest('img');
+      if (!img) return;
+      const alt = img.getAttribute('alt');
+      const href = routes[alt];
+      if (!href) return;
+
+      footer.querySelectorAll('img').forEach(i => i.classList.remove('active'));
+      img.classList.add('active');
+
+      window.location.href = href;
+    });
+  })();
+  </script>
 </body>
 </html>

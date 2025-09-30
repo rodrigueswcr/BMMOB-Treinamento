@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8"/>
@@ -66,44 +66,43 @@
   </div>
 
   <script>
-(function footerRouter(){
-  const footer = document.querySelector('.footer');
-  if (!footer) return;
+  (function footerRouter(){
+    const footer = document.querySelector('.footer');
+    if (!footer) return;
 
-   // Mapeamento por ALT
-  const routes = {
-    'Boletim':   'registrar.html',
-        'Indivíduo': 'participantes.html',
-        'Objeto':    'objetos.html',
-        'Arma':      'armas.html',
-        'Veículo':   'veiculos.html',
-        'Outros':    'anexos.html'
-  };
+    // Mapeamento por ALT
+    const routes = {
+      'Boletim':   'registrar.html',
+      'Indivíduo': 'participantes.html',
+      'Objeto':    'objetos.html',
+      'Arma':      'armas.html',
+      'Veículo':   'veiculos.html',
+      'Outros':    'anexos.html'
+    };
 
-  // Delegação de eventos no footer (um único listener)
-  footer.addEventListener('click', (ev) => {
-    const img = ev.target.closest('img');
-    if (!img) return;
-    const alt = img.getAttribute('alt');
-    const href = routes[alt];
-    if (!href) return;
+    footer.addEventListener('click', (ev) => {
+      const img = ev.target.closest('img');
+      if (!img) return;
+      const alt = img.getAttribute('alt');
+      const href = routes[alt];
+      if (!href) return;
 
-    // Mantém o destaque visual
-    footer.querySelectorAll('img').forEach(i => i.classList.remove('active'));
-    img.classList.add('active');
+      // Atualiza o destaque
+      footer.querySelectorAll('img').forEach(i => i.classList.remove('active'));
+      img.classList.add('active');
 
-    // Navega
-    window.location.href = href;
-  });
-})();
-</script>
+      // Navega
+      window.location.href = href;
+    });
+  })();
+  </script>
 
   <script>
     document.getElementById('btnBack').addEventListener('click', ()=>{ 
       if(history.length>1) history.back(); else window.location.href='historico.html'; 
     });
     document.getElementById('btnAdicionar')
-    .addEventListener('click', () => { window.location.href = 'participantes1.html'; });
+      .addEventListener('click', () => { window.location.href = 'novo-participante.html'; });
   </script>
 </body>
 </html>

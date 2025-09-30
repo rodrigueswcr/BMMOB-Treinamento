@@ -23,9 +23,19 @@
     textarea:focus{border-color:#888}
     .counter{font-size:12px;color:#666;margin:6px 0 12px}
 
-    .btn{width:100%;border-radius:6px;border:none;padding:12px 16px;font-weight:bold;cursor:pointer}
+    /* Botões com texto centralizado */
+    .btn{width:100%;border-radius:6px;border:none;padding:12px 16px;font-weight:bold;cursor:pointer;position:relative;text-align:center}
     .btn-primary{background:#2f6f73;color:#fff;margin-bottom:10px}
     .btn-secondary{background:#2f6f73;color:#fff;margin-bottom:10px}
+
+    /* Badge numérico sem mexer no alinhamento do texto */
+    .badge{
+      display:none;
+      position:absolute; right:10px; top:50%; transform:translateY(-50%);
+      background:#fff; color:#2f6f73; border:1px solid #2f6f73;
+      min-width:20px; padding:2px 6px; border-radius:999px;
+      font-size:12px; line-height:1; text-align:center; font-weight:700;
+    }
 
     .mic-btn{width:50px;height:50px;border-radius:50%;border:1px solid #c9c9c9;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
     .mic-btn img{width:54px;height:54px;display:block}
@@ -61,20 +71,33 @@
       <textarea id="historico" maxlength="1800"></textarea>
       <div class="counter">Caracteres restantes: <span id="restantes">1800</span></div>
 
-      <button class="btn btn-primary" id="btnViatura">VIATURA</button>
-      <button class="btn btn-secondary" id="btnAtendentes">OUTROS ATENDENTES</button>
-      <button class="btn btn-secondary" id="btnDocumentos">OUTROS DOCUMENTOS</button>
-      <button class="btn btn-secondary" id="btnOrgaos">OUTROS ÓRGÃOS</button>
-
-      <!-- NOVO BOTÃO -->
-      <button class="btn btn-secondary" id="btnGerarDocs">GERAR DOCUMENTOS</button>
+      <button class="btn btn-primary" id="btnViatura">
+        VIATURA
+        <span class="badge" id="countViatura">0</span>
+      </button>
+      <button class="btn btn-secondary" id="btnAtendentes">
+        OUTROS ATENDENTES
+        <span class="badge" id="countAtendentes">0</span>
+      </button>
+      <button class="btn btn-secondary" id="btnDocumentos">
+        OUTROS DOCUMENTOS
+        <span class="badge" id="countDocumentos">0</span>
+      </button>
+      <button class="btn btn-secondary" id="btnOrgaos">
+        OUTROS ÓRGÃOS
+        <span class="badge" id="countOrgaos">0</span>
+      </button>
+      <button class="btn btn-secondary" id="btnGerarDocs">
+        GERAR DOCUMENTOS
+        <span class="badge" id="countGerarDocs">0</span>
+      </button>
     </div>
 
-    <!-- Pager Unificado -->
+    <!-- PAGER (5 etapas): Registrar → Fato → Questionário (ativo) → Localização → Histórico -->
     <div class="pager-dots" aria-label="Progresso">
       <a class="pager-dot" href="registrar.html" title="Etapa 1: Registrar"></a>
-      <a class="pager-dot" href="questionario.html" title="Etapa 2: Questionário"></a>
-      <a class="pager-dot" href="fato-ba.html" title="Etapa 3: Fato"></a>
+      <a class="pager-dot" href="fato-ba.html" title="Etapa 2: Fato"></a>
+      <a class="pager-dot" href="questionario.html" title="Etapa 3: Questionário"></a>
       <a class="pager-dot" href="localizacao.html" title="Etapa 4: Localização"></a>
       <a class="pager-dot active" href="historico.html" title="Etapa 5: Histórico"></a>
     </div>
@@ -95,17 +118,16 @@
   const footer = document.querySelector('.footer');
   if (!footer) return;
 
-    // Mapeamento por ALT
+  // Mapeamento por ALT
   const routes = {
     'Boletim':   'registrar.html',
-        'Indivíduo': 'participantes.html',
-        'Objeto':    'objetos.html',
-        'Arma':      'armas.html',
-        'Veículo':   'veiculos.html',
-        'Outros':    'anexos.html'
+    'Indivíduo': 'participantes.html',
+    'Objeto':    'objetos.html',
+    'Arma':      'armas.html',
+    'Veículo':   'veiculos.html',
+    'Outros':    'anexos.html'
   };
 
-  // Delegação de eventos no footer (um único listener)
   footer.addEventListener('click', (ev) => {
     const img = ev.target.closest('img');
     if (!img) return;
@@ -113,11 +135,9 @@
     const href = routes[alt];
     if (!href) return;
 
-    // Mantém o destaque visual
     footer.querySelectorAll('img').forEach(i => i.classList.remove('active'));
     img.classList.add('active');
 
-    // Navega
     window.location.href = href;
   });
 })();
@@ -154,7 +174,6 @@
       window.location.href = 'localizacao.html'; 
     });
 
-    // Botão check leva para participantes.html (mantido)
     document.getElementById('btnNext').addEventListener('click', ()=>{ 
       salvarHistorico(); 
       window.location.href = 'participantes.html'; 
@@ -190,7 +209,7 @@
       if(recognizing) rec.stop(); else { try{ rec.start(); }catch(_){ } }
     });
 
-    // Botões adicionais existentes
+    // Abertura de páginas (salvando antes)
     document.getElementById('btnViatura').addEventListener('click', () => {
       salvarHistorico();
       window.location.href = 'viatura.html';
@@ -207,12 +226,72 @@
       salvarHistorico();
       window.location.href = 'outros-orgaos.html';
     });
-
-    // NOVO: Gerar documentos
     document.getElementById('btnGerarDocs').addEventListener('click', () => {
       salvarHistorico();
       window.location.href = 'gerar-documentos.html';
     });
+
+    /* =========================
+       CONTADORES DE ITENS
+       ========================= */
+    function extractCount(raw){
+      if(raw == null) return 0;
+      const num = Number(raw);
+      if(Number.isFinite(num) && num >= 0) return num;
+      try{
+        const data = JSON.parse(raw);
+        if(Array.isArray(data)) return data.length;
+        if(data && Array.isArray(data.items)) return data.items.length;
+        if(data && Number.isFinite(data.count)) return data.count;
+      }catch(e){}
+      return 0;
+    }
+
+    // Procura primeiro em uma lista de chaves comuns; se nada, varre todas as chaves que contenham a palavra alvo
+    function smartCount(keyword, commonKeys){
+      // 1) comuns
+      for(const k of commonKeys){
+        const v1 = sessionStorage.getItem(k); if(v1!==null){ const n=extractCount(v1); if(n>0) return n; }
+        const v2 = localStorage.getItem(k);   if(v2!==null){ const n=extractCount(v2); if(n>0) return n; }
+      }
+      // 2) qualquer chave contendo a palavra
+      const kw = keyword.toLowerCase();
+      let best = 0;
+      [sessionStorage, localStorage].forEach(store=>{
+        for(let i=0;i<store.length;i++){
+          const key = store.key(i);
+          if(!key) continue;
+          if(key.toLowerCase().includes(kw)){
+            const n = extractCount(store.getItem(key));
+            if(n > best) best = n;
+          }
+        }
+      });
+      return best;
+    }
+
+    function setBadge(badgeId, keyword, commonKeys){
+      const el = document.getElementById(badgeId);
+      if(!el) return;
+      const n = smartCount(keyword, commonKeys);
+      if(n > 0){ el.textContent = n; el.style.display = 'inline-block'; }
+      else { el.style.display = 'none'; }
+    }
+
+    function refreshAllBadges(){
+      setBadge('countViatura',    'viatura',   ['viaturaCount','viaturas','listaViaturas','viaturaLista']);
+      setBadge('countAtendentes', 'atendente', ['atendentesCount','outrosAtendentes','atendentes','listaAtendentes']);
+      setBadge('countDocumentos', 'documento', ['documentosCount','outrosDocumentos','documentos','docsLista']);
+      setBadge('countOrgaos',     'órgão',     ['orgaosCount','outrosOrgaos','orgaos','orgaosLista','outros_orgaos']);
+      setBadge('countGerarDocs',  'gerar',     ['gerarDocsCount','docsGerados','arquivosGerados']);
+    }
+
+    // Atualiza ao entrar/voltar
+    document.addEventListener('visibilitychange', () => {
+      if(document.visibilityState === 'visible'){ refreshAllBadges(); }
+    });
+    window.addEventListener('pageshow', refreshAllBadges);
+    refreshAllBadges(); // primeira carga
   </script>
 
   <!-- Salvar ao clicar nas bolinhas do pager -->
@@ -226,7 +305,7 @@
     });
   </script>
 
-  <!-- Swipe lateral entre páginas (salvando antes de trocar) -->
+  <!-- Swipe lateral entre páginas (mantido) -->
   <script>
     (function enableSwipePages(){
       const ROUTE = ['registrar.html','fato-ba.html','questionario.html','localizacao.html','historico.html'];

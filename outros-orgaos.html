@@ -60,25 +60,70 @@
   </div>
 
   <script>
-    // Navegação
-    document.getElementById('btnBack').addEventListener('click', ()=>{
-      if(history.length>1) history.back(); else window.location.href='historico.html';
-    });
-    document.getElementById('btnSave').addEventListener('click', ()=>{ alert('Dados salvos.'); });
+    // Util
+    function onlyDigits(el){ el.addEventListener('input', e=>{ e.target.value = e.target.value.replace(/\D+/g,''); }); }
 
-    // Validação simples do botão ADICIONAR
+    // Campos
     const numRegistro = document.getElementById('numRegistro');
     const nomeOrgao  = document.getElementById('nomeOrgao');
+
+    // Chaves de storage
+    const LIST_KEY  = 'outrosOrgaos';   // lista que o historico.html enxerga
+    const COUNT_KEY = 'orgaosCount';    // contador que aparece no badge
+
+    function getLista(){
+      try { return JSON.parse(sessionStorage.getItem(LIST_KEY) || '[]'); }
+      catch { return []; }
+    }
+
+    function setLista(arr){
+      sessionStorage.setItem(LIST_KEY, JSON.stringify(arr));
+      sessionStorage.setItem(COUNT_KEY, String(arr.length));
+    }
+
+    function syncNow(){
+      // Garante que o histórico veja algo coerente mesmo se não houver lista criada ainda
+      const arr = getLista();
+      setLista(arr); // regrava e atualiza COUNT_KEY
+    }
+
+    // Navegação (mantida) + ensure sync
+    document.getElementById('btnBack').addEventListener('click', ()=>{
+      syncNow();
+      if(history.length>1) history.back(); else window.location.href='historico.html';
+    });
+    document.getElementById('btnSave').addEventListener('click', ()=>{
+      syncNow();
+      alert('Dados salvos.');
+    });
+
+    // Validação e adicionar item
     document.getElementById('btnAdicionar').addEventListener('click', ()=>{
       const n = numRegistro.value.trim();
       const o = nomeOrgao.value.trim();
       if(!n){ alert('Informe o Número de Registro.'); numRegistro.focus(); return; }
       if(!o){ alert('Informe o Nome do Órgão.'); nomeOrgao.focus(); return; }
+
+      // Salva na lista da sessão (sem mudar o layout)
+      const arr = getLista();
+      arr.unshift({
+        id: 'org_' + Date.now(),
+        registro: n.replace(/\D+/g,''),
+        orgao: o
+      });
+      setLista(arr);  // <-- atualiza também orgaosCount
+
       alert('Órgão adicionado:\n\nRegistro: ' + n + '\nÓrgão: ' + o);
+
+      // Limpa campos
       numRegistro.value = '';
       nomeOrgao.value = '';
       numRegistro.focus();
     });
+
+    // Init
+    onlyDigits(numRegistro);
+    syncNow(); // sincroniza contador ao abrir
   </script>
 </body>
 </html>

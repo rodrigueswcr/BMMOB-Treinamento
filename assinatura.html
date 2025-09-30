@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>Assinatura</title>
+  <style>
+    *{box-sizing:border-box}
+    html, body { height:100%; }
+    body{
+      margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f1f1;
+      display:flex;justify-content:center;align-items:center;min-height:100dvh;
+      touch-action:manipulation;
+    }
+    .container{
+      background:#fff;width:100%;max-width:400px;height:100dvh;
+      display:flex;flex-direction:column;
+    }
+
+    /* Topbar */
+    .topbar{
+      background:#333;color:#fff;display:flex;align-items:center;justify-content:space-between;
+      padding:8px;font-weight:bold;flex-shrink:0;font-size:14px;
+    }
+    .topbar .title{ text-transform:uppercase; letter-spacing:.5px; flex:1; text-align:center; }
+    .icon-btn{width:24px;height:24px;border:none;background:transparent;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+    .icon{width:18px;height:18px;display:block}
+
+    .content{flex:1;overflow:hidden;padding:12px 16px 16px 16px;display:flex;flex-direction:column}
+    .pad{
+      border:1px solid #333;border-radius:2px;background:#fff;
+      width:100%;height:220px; /* área da assinatura */
+      touch-action:none;
+    }
+
+    .btn-row{display:flex;gap:10px;margin-top:10px}
+    .btn{
+      border:none;border-radius:6px;padding:8px 14px;font-weight:bold;letter-spacing:.3px;cursor:pointer;font-size:13px;
+    }
+    .btn-save{background:#2f6f73;color:#fff;}
+    .btn-clear{background:#e57373;color:#fff;}
+    .hint{font-size:12px;color:#666;margin-top:6px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Topbar -->
+    <div class="topbar">
+      <button class="icon-btn" aria-label="Voltar" onclick="history.back()">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      <div class="title">Assinatura</div>
+      <span style="width:24px;height:24px"></span>
+    </div>
+
+    <div class="content">
+      <canvas id="sig" class="pad"></canvas>
+
+      <div class="btn-row">
+        <button id="btnSave" class="btn btn-save" type="button">SALVAR</button>
+        <button id="btnClear" class="btn btn-clear" type="button">LIMPAR</button>
+      </div>
+      <div class="hint">Assine com o dedo (toque) ou com o mouse.</div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('sig');
+    const ctx = canvas.getContext('2d');
+    const STORAGE_KEY = 'assinatura:image';
+
+    function resizeCanvas(){
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      const { width, height } = canvas.getBoundingClientRect();
+      canvas.width  = Math.round(width * ratio);
+      canvas.height = Math.round(height * ratio);
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0,0,width,height);
+      restoreFromLocal(); // reexibe se já havia assinado
+    }
+
+    // ===== Desenho (mouse + toque)
+    let drawing = false, lastX=0, lastY=0;
+
+    function getPos(e){
+      const r = canvas.getBoundingClientRect();
+      const t = e.touches && e.touches[0];
+      const x = (t ? t.clientX : e.clientX) - r.left;
+      const y = (t ? t.clientY : e.clientY) - r.top;
+      return {x,y};
+    }
+    function start(e){ e.preventDefault(); drawing=true; ({x:lastX,y:lastY}=getPos(e)); }
+    function move(e){
+      if(!drawing) return;
+      e.preventDefault();
+      const {x,y} = getPos(e);
+      ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle='#111'; ctx.lineWidth=2.2;
+      ctx.beginPath(); ctx.moveTo(lastX,lastY); ctx.lineTo(x,y); ctx.stroke();
+      lastX=x; lastY=y;
+    }
+    function end(){ if(drawing){ drawing=false; saveToLocal(); } }
+
+    canvas.addEventListener('mousedown', start);
+    canvas.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', end);
+    canvas.addEventListener('touchstart', start, {passive:false});
+    canvas.addEventListener('touchmove', move, {passive:false});
+    canvas.addEventListener('touchend', end);
+    canvas.addEventListener('touchmove', (e)=>e.preventDefault(), {passive:false});
+
+    // ===== Persistência
+    function saveToLocal(){
+      try{
+        const dataURL = canvas.toDataURL('image/png');
+        localStorage.setItem(STORAGE_KEY, dataURL);
+      }catch(e){}
+    }
+    function restoreFromLocal(){
+      try{
+        const dataURL = localStorage.getItem(STORAGE_KEY);
+        if(!dataURL) return;
+        const img = new Image();
+        img.onload = ()=>{
+          const dpr = window.devicePixelRatio || 1;
+          ctx.drawImage(img, 0, 0, canvas.width/dpr, canvas.height/dpr);
+        };
+        img.src = dataURL;
+      }catch(e){}
+    }
+
+    document.getElementById('btnClear').addEventListener('click', ()=>{
+      const { width, height } = canvas.getBoundingClientRect();
+      ctx.clearRect(0,0,width,height);
+      ctx.fillStyle='#fff'; ctx.fillRect(0,0,width,height);
+      try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+    });
+
+    // SALVAR: apenas persiste e volta à tela anterior (novo-participante)
+    document.getElementById('btnSave').addEventListener('click', ()=>{
+      saveToLocal();
+      alert('Assinatura salva.');
+      window.location.href = 'novo-participante.html';
+    });
+
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('orientationchange', ()=>setTimeout(resizeCanvas, 200));
+    requestAnimationFrame(resizeCanvas);
+  </script>
+</body>
+</html>

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Nova Arma</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f1f1;
+    display:flex;justify-content:center;align-items:center;min-height:100dvh;
+  }
+  body.no-scroll{overflow:hidden}
+
+  .container{
+    background:#fff;width:100%;max-width:400px;height:100dvh;
+    display:flex;flex-direction:column;
+  }
+
+  /* Topbar */
+  .topbar{
+    background:#333;color:#fff;display:flex;align-items:center;justify-content:space-between;
+    padding:8px 10px;font-weight:bold;flex-shrink:0;font-size:14px;z-index:1;
+  }
+  .topbar .title{flex:1;text-align:center;text-transform:uppercase;letter-spacing:.5px}
+  .icon-btn{width:24px;height:24px;border:none;background:transparent;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .icon{width:18px;height:18px;display:block}
+
+  /* Conteúdo */
+  .content{flex:1;overflow-y:auto;padding:10px 14px 14px 14px}
+
+  label{display:block;font-size:12px;color:#2f6f73;margin:6px 0 3px}
+  .req::before{content:"* ";color:#d00;font-weight:bold}
+
+  /* Estilo “linha” */
+  .line{
+    width:100%;border:none;border-bottom:1px solid #cfcfcf;background:transparent;
+    padding:8px 0 6px 0;font-size:14px;outline:none;border-radius:0;
+  }
+  .line:focus{border-bottom-color:#888}
+
+  select.line{
+    -webkit-appearance:none;-moz-appearance:none;appearance:none;
+    background-image: linear-gradient(45deg,transparent 50%,#666 50%),linear-gradient(135deg,#666 50%,transparent 50%);
+    background-position: right 6px center, right 0px center;
+    background-size: 6px 6px, 6px 6px;
+    background-repeat:no-repeat;
+    padding-right:20px;
+  }
+
+  .row{display:flex;gap:8px;align-items:flex-end}
+  .row .grow{flex:1}
+  .btn{border:none;border-radius:4px;padding:8px 10px;font-weight:bold;cursor:pointer;font-size:12px}
+  .btn-dark{background:#2f6f73;color:#fff}
+
+  .icon-square{width:34px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;
+    background:#2f6f73;color:#fff;font-weight:bold;border:none;cursor:pointer}
+
+  .radio-row{display:flex;gap:16px;align-items:center;margin:2px 0 6px}
+  .radio-row label{display:flex;align-items:center;gap:6px;color:#333;font-size:13px;margin:0}
+
+  /* Divider fino (como no print) */
+  .divider{height:1px;background:#dcdcdc;margin:6px 0 4px}
+
+  /* Overlays */
+  .overlay{
+    position:fixed; left:0; top:0; width:100vw; height:100vh;
+    background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center;
+    z-index:9999;
+  }
+  .modal{width:min(320px,90vw);background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 12px 32px rgba(0,0,0,.25)}
+  .modal-header{background:#2f6f73;color:#fff;font-weight:bold;padding:10px 12px}
+  .modal-body{padding:10px 12px;max-height:60vh;overflow:auto}
+  .modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:10px 12px;background:#f7f7f7}
+  .opt-line{display:flex;align-items:center;gap:8px;padding:8px 4px;border-bottom:1px solid #eee}
+  .opt-line:last-child{border-bottom:none}
+
+  .big-modal .modal{width:min(360px,94vw)}
+  .searchbox{width:100%;border:1px solid #ccc;border-radius:6px;padding:8px 10px;margin-bottom:8px}
+  .brand{padding:10px 6px;border-bottom:1px solid #eee;cursor:pointer}
+  .brand:last-child{border-bottom:none}
+  .brand:hover{background:#f6f9f9}
+
+  /* Registro noutro órgão */
+  .cols-2{display:flex;gap:12px}
+  .cols-2 .col{flex:1}
+  .reg-list{margin-top:6px;display:flex;flex-direction:column;gap:6px}
+  .reg-item{display:flex;align-items:center;gap:8px}
+  .reg-text{flex:1;padding:6px 0;border-bottom:1px dashed #ddd;font-size:13px;color:#333}
+  .reg-remove{border:none;background:#eee;border-radius:4px;padding:4px 8px;cursor:pointer}
+  .reg-remove:hover{background:#e5e5e5}
+</style>
+</head>
+<body>
+  <div class="container">
+    <!-- Topbar -->
+    <div class="topbar">
+      <button class="icon-btn" aria-label="Voltar" onclick="history.back()">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      <div class="title">NOVA ARMA</div>
+      <button class="icon-btn" aria-label="Concluir" id="btnConcluir">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 6L9 17l-5-5"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="content">
+      <!-- Condição da numeração -->
+      <label class="req">Condição da numeração</label>
+      <div class="radio-row" role="radiogroup" aria-label="Condição da numeração">
+        <label><input type="radio" name="cond" value="Raspada"> Rasp…</label>
+        <label><input type="radio" name="cond" value="Apagada"> Apa…</label>
+        <label><input type="radio" name="cond" value="Legível" checked> Legível</label>
+      </div>
+
+      <!-- Divider como na imagem -->
+      <div class="divider"></div>
+
+      <!-- Número da arma + pesquisar -->
+      <label class="req" for="numArma">Número da Arma</label>
+      <div class="row">
+        <input id="numArma" class="line grow" type="text" placeholder="">
+        <button class="btn btn-dark" id="btnPesquisar" type="button">PESQUISAR</button>
+      </div>
+
+      <!-- Participação -->
+      <label class="req" for="participacao">Participação</label>
+      <select id="participacao" class="line">
+        <option value="" selected disabled></option>
+        <option>Apreendida</option>
+        <option>Utilizada no fato</option>
+        <option>Encontrada</option>
+        <option>Pertencente à vítima</option>
+        <option>Pertencente ao autor</option>
+      </select>
+
+      <!-- Proprietário da arma -->
+      <label for="proprietario">Proprietário da arma</label>
+      <div class="row">
+        <input id="proprietario" class="line grow" type="text" placeholder="">
+        <button class="icon-square" id="btnBuscaProp" type="button">🔍</button>
+      </div>
+
+      <!-- Espécie / Calibre / Marca / Infra tambor / Acabamento -->
+      <label class="req" for="especie">Espécie da arma</label>
+      <select id="especie" class="line">
+        <option value="" selected disabled></option>
+        <option>Carabina</option>
+        <option>Dispositivo elétrico incapacitante</option>
+        <option>Escopeta</option>
+        <option>Espingarda</option>
+        <option>Fuzil</option>
+        <option>Pistola</option>
+        <option>Revólver</option>
+        <option>Garrucha</option>
+        <option>Metralhadora</option>
+        <option>Outros</option>
+      </select>
+
+      <label class="req" for="calibre">Calibre</label>
+      <select id="calibre" class="line">
+        <option value="" selected disabled></option>
+        <option>.22</option><option>.32</option><option>.38</option><option>9mm</option>
+        <option>.40</option><option>.45</option><option>12</option><option>16</option><option>36</option>
+      </select>
+
+      <label for="marca">Marca da arma</label>
+      <div class="row">
+        <input id="marca" class="line grow" type="text" placeholder="" readonly>
+        <button class="icon-square" id="btnMarca" type="button">🔍</button>
+      </div>
+
+      <label for="infra">Infra tambor da arma</label>
+      <input id="infra" class="line" type="text" placeholder="">
+
+      <label for="acabamento">Acabamento da arma</label>
+      <select id="acabamento" class="line">
+        <option value="" selected disabled></option>
+        <option>Oxidado</option>
+        <option>Niquelado</option>
+        <option>Inox</option>
+        <option>Acetinado</option>
+        <option>Cromado</option>
+        <option>Pintura epóxi</option>
+        <option>Dourado</option>
+        <option>Fosfatizado</option>
+        <option>Grafite</option>
+      </select>
+
+      <!-- Registro noutro órgão -->
+      <h3 style="text-align:center;margin:14px 0 6px 0;color:#333;font-size:16px">Registro noutro órgão</h3>
+
+      <!-- Duas colunas: Número | Órgão -->
+      <div class="cols-2">
+        <div class="col">
+          <label for="regNumero">Número</label>
+          <input id="regNumero" class="line" type="text" placeholder="">
+        </div>
+        <div class="col">
+          <label for="regOrgao">Órgão</label>
+          <input id="regOrgao" class="line" type="text" placeholder="">
+        </div>
+      </div>
+      <div style="margin-top:6px;display:flex;justify-content:flex-end">
+        <button class="btn" id="btnAddReg" type="button">Adicionar registro</button>
+      </div>
+      <div id="regList" class="reg-list"></div>
+    </div>
+  </div>
+
+  <!-- Modal: armas encontradas -->
+  <div class="overlay" id="armasOverlay" role="dialog" aria-modal="true" aria-labelledby="armasTitle">
+    <div class="modal">
+      <div class="modal-header" id="armasTitle">Armas encontradas</div>
+      <div class="modal-body" id="armasList"></div>
+      <div class="modal-footer">
+        <button class="btn" id="armasCancel">CANCELAR</button>
+        <button class="btn btn-dark" id="armasOk">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: marcas -->
+  <div class="overlay big-modal" id="marcaOverlay" role="dialog" aria-modal="true" aria-labelledby="marcaTitle">
+    <div class="modal">
+      <div class="modal-header" id="marcaTitle">Marca</div>
+      <div class="modal-body">
+        <input id="marcaSearch" class="searchbox" type="text" placeholder="Pesquisar">
+        <div id="marcaList"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" id="marcaClose">FECHAR</button>
+        <button class="btn btn-dark" id="marcaSelect">SELECIONAR</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ======== Mock ======== */
+const MOCK_ARMS = {
+  "1234": ["GARRUCHAO 28","GARRUCHA .38","ESPINGARDA 16","ESPINGARDA 36"],
+  "0001": ["PISTOLA 9MM","REVÓLVER .38"],
+};
+function especieFromResult(txt){
+  const t = txt.toLowerCase();
+  if(t.includes('pistola')) return 'Pistola';
+  if(t.includes('revólver') || t.includes('revolver')) return 'Revólver';
+  if(t.includes('garrucha')) return 'Garrucha';
+  if(t.includes('espingarda')) return 'Espingarda';
+  if(t.includes('carabina')) return 'Carabina';
+  return '';
+}
+const MARCAS = [
+  "WEBLEY (P. WEBLEY & SON)", "A. ANDRISSON AACHEN", "A. CAMPOS & CO", "A. CAVES", "A. ERRASTI",
+  "A ESPINGARDA MINEIRA", "A. FORGERON", "A GARRUCHA MINEIRA", "A. STROGER", "A.A.",
+  "BERETTA", "BROWNING", "CBC", "COLT", "GLOCK", "IMBEL", "RUGER", "SIG SAUER", "SMITH & WESSON", "TAURUS"
+];
+
+/* ======== Overlays ======== */
+function openOverlay(el){
+  document.querySelectorAll('.overlay').forEach(o=>o.style.display='none');
+  el.style.display='flex';
+  document.body.classList.add('no-scroll');
+}
+function closeOverlay(el){
+  el.style.display='none';
+  const aberto = Array.from(document.querySelectorAll('.overlay')).some(o=>o.style.display!=='none');
+  if(!aberto) document.body.classList.remove('no-scroll');
+}
+
+/* ======== DOM ======== */
+const numArma = document.getElementById('numArma');
+const btnPesquisar = document.getElementById('btnPesquisar');
+const overlayArmas = document.getElementById('armasOverlay');
+const armasListEl  = document.getElementById('armasList');
+const armasOk      = document.getElementById('armasOk');
+const armasCancel  = document.getElementById('armasCancel');
+const especieSel   = document.getElementById('especie');
+
+const btnMarca   = document.getElementById('btnMarca');
+const marcaInput = document.getElementById('marca');
+const marcaOverlay = document.getElementById('marcaOverlay');
+const marcaSearch  = document.getElementById('marcaSearch');
+const marcaList    = document.getElementById('marcaList');
+const marcaClose   = document.getElementById('marcaClose');
+const marcaSelect  = document.getElementById('marcaSelect');
+
+/* ======== Pesquisar número ======== */
+let armasSelecionadas = []; 
+let idxSelecionado = 0;
+
+btnPesquisar.addEventListener('click', ()=>{
+  const n = (numArma.value||'').trim();
+  if(!n){ alert('Informe o número da arma.'); return; }
+  const results = MOCK_ARMS[n] || ["PISTOLA 9MM","REVÓLVER .38","ESPINGARDA 12","CARABINA .22"];
+  armasSelecionadas = results;
+  idxSelecionado = 0;
+  renderArmasModal();
+  openOverlay(overlayArmas);
+});
+function renderArmasModal(){
+  armasListEl.innerHTML = '';
+  armasSelecionadas.forEach((txt, i)=>{
+    const line = document.createElement('label');
+    line.className = 'opt-line';
+    const r = document.createElement('input'); r.type='radio'; r.name='armasOpt'; r.value=String(i);
+    if(i===idxSelecionado) r.checked = true;
+    r.addEventListener('change', ()=> idxSelecionado = i);
+    const span = document.createElement('span'); span.textContent = txt;
+    line.appendChild(r); line.appendChild(span);
+    armasListEl.appendChild(line);
+  });
+}
+armasOk.addEventListener('click', ()=>{
+  const txt = armasSelecionadas[idxSelecionado] || '';
+  const e = especieFromResult(txt);
+  if(e){ especieSel.value = e; }
+  closeOverlay(overlayArmas);
+});
+armasCancel.addEventListener('click', ()=> closeOverlay(overlayArmas));
+overlayArmas.addEventListener('click', e=>{ if(e.target===overlayArmas) closeOverlay(overlayArmas); });
+
+/* ======== Proprietário (simulação) ======== */
+document.getElementById('btnBuscaProp').addEventListener('click', ()=>{
+  const atual = document.getElementById('proprietario').value.trim();
+  alert(atual ? ('Busca por: ' + atual) : 'Informe parte do nome do proprietário para pesquisar.');
+});
+
+/* ======== Marcas ======== */
+let marcaSelIndex = -1;
+btnMarca.addEventListener('click', ()=>{
+  marcaSelIndex = -1;
+  marcaSearch.value = '';
+  renderMarcaList('');
+  openOverlay(marcaOverlay);
+});
+function renderMarcaList(filter){
+  const q = (filter||'').toLowerCase();
+  const arr = MARCAS.filter(m => m.toLowerCase().includes(q));
+  marcaList.innerHTML = '';
+  arr.forEach((m, i)=>{
+    const div = document.createElement('div');
+    div.className = 'brand';
+    div.textContent = m;
+    div.addEventListener('click', ()=>{
+      marcaSelIndex = i;
+      marcaList.querySelectorAll('.brand').forEach(el=>el.style.background='');
+      div.style.background = '#eef6f6';
+    });
+    marcaList.appendChild(div);
+  });
+}
+marcaSearch.addEventListener('input', e=> renderMarcaList(e.target.value));
+marcaClose.addEventListener('click', ()=> closeOverlay(marcaOverlay));
+marcaOverlay.addEventListener('click', e=>{ if(e.target===marcaOverlay) closeOverlay(marcaOverlay); });
+marcaSelect.addEventListener('click', ()=>{
+  const q = marcaSearch.value.toLowerCase();
+  const arr = MARCAS.filter(m => m.toLowerCase().includes(q));
+  if(marcaSelIndex<0 || !arr[marcaSelIndex]){ alert('Selecione uma marca.'); return; }
+  marcaInput.value = arr[marcaSelIndex];
+  closeOverlay(marcaOverlay);
+});
+
+/* ======== Registro noutro órgão ======== */
+const regNumero = document.getElementById('regNumero');
+const regOrgao  = document.getElementById('regOrgao');
+const regListEl = document.getElementById('regList');
+document.getElementById('btnAddReg').addEventListener('click', ()=>{
+  const n = regNumero.value.trim();
+  const o = regOrgao.value.trim();
+  if(!n || !o){ alert('Preencha Número e Órgão.'); return; }
+  addRegItem(n,o);
+  regNumero.value=''; regOrgao.value='';
+  regNumero.focus();
+});
+function addRegItem(num, org){
+  const line = document.createElement('div');
+  line.className = 'reg-item';
+  const text = document.createElement('div');
+  text.className = 'reg-text';
+  text.textContent = `${num} — ${org}`;
+  const rm = document.createElement('button');
+  rm.className = 'reg-remove'; rm.textContent = 'Remover';
+  rm.addEventListener('click', ()=> line.remove());
+  line.append(text, rm);
+  regListEl.appendChild(line);
+}
+
+/* ======== Concluir ======== */
+document.getElementById('btnConcluir').addEventListener('click', ()=>{
+  if(!document.querySelector('input[name="cond"]:checked')){ alert('Informe a condição da numeração.'); return; }
+  if(!numArma.value.trim()){ alert('Informe o número da arma.'); return; }
+  if(!document.getElementById('participacao').value){ alert('Selecione a participação.'); return; }
+  if(!document.getElementById('especie').value){ alert('Selecione a espécie.'); return; }
+  if(!document.getElementById('calibre').value){ alert('Selecione o calibre.'); return; }
+  alert('Arma registrada (simulação).');
+});
+</script>
+</body>
+</html>

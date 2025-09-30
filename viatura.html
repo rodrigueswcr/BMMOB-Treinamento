@@ -80,16 +80,11 @@
     }
     .vi-actions{ display:flex; gap:8px; }
     .icon-btn{
-      width:30px;             /* dobrado */
-      height:30px;            /* dobrado */
+      width:30px; height:30px;
       display:flex; align-items:center; justify-content:center;
       background:#fff; border:1px solid #d7dbe0; border-radius:4px; cursor:pointer;
     }
-    .icon-btn img{
-      width:27px;             /* dobrado */
-      height:27px;            /* dobrado */
-      display:block;
-    }
+    .icon-btn img{ width:27px; height:27px; display:block; }
 
     .footer{ display:flex; justify-content:space-around; background-color:#2f6f73; padding:10px 0; flex-shrink:0; }
     .footer img{ cursor:pointer; width:28px; height:28px; transition:.2s; filter:grayscale(30%) brightness(0.9); }
@@ -102,7 +97,6 @@
     <div class="topbar">
       <img src="img/back.png" alt="Voltar" id="btnBack">
       <div class="title">VIATURA</div>
-      <!-- Spacer para manter o título centralizado após remover o check -->
       <div style="width:22px;height:22px;"></div>
     </div>
 
@@ -125,7 +119,7 @@
         </div>
       </div>
 
-      <!-- Inicial (único com asterisco) -->
+      <!-- Inicial (obrigatório) -->
       <div class="field-row">
         <div class="field-label"><span class="req-dot">*</span> Inicial</div>
         <div class="field-value active" id="inicioTxt" title="Clique para definir manualmente"></div>
@@ -157,7 +151,7 @@
         <div class="picker-actions"><button class="btn-ok" onclick="confirmarChegada()">OK</button></div>
       </div>
 
-      <!-- Chegada DP -->
+      <!-- Chegada DP (opcional) -->
       <div class="field-row">
         <div class="field-label">Chegada DP</div>
         <div class="field-value hint" id="dpTxt" title="Clique para definir manualmente">Data/Hora</div>
@@ -204,7 +198,7 @@
       <div id="viList" class="vi-list"></div>
     </div>
 
-    <!-- Não tem footer -->
+    <!-- Sem footer -->
 
   <script>
     /* ===== Utilidades ===== */
@@ -249,7 +243,7 @@
 
     /* ===== Estado ===== */
     let usandoManualInicio=false;
-    let inicioAutoAtivo = true;   // <- controla se o INICIAL atualiza sozinho
+    let inicioAutoAtivo = true;
     let inicioDate = new Date();
     let chegadaDate = null;
     let dpDate = null;
@@ -266,7 +260,12 @@
     };
 
     function getLista(){ try { return JSON.parse(sessionStorage.getItem(K.lista)||'[]'); } catch { return []; } }
-    function setLista(arr){ sessionStorage.setItem(K.lista, JSON.stringify(arr)); }
+    function setLista(arr){
+      sessionStorage.setItem(K.lista, JSON.stringify(arr));
+      // >>> sincroniza com o histórico:
+      sessionStorage.setItem('viaturaCount', String(arr.length));
+      sessionStorage.setItem('viaturas', JSON.stringify(arr));
+    }
 
     function restore(){
       const pr = sessionStorage.getItem(K.prefixo); if(pr) prefixo.value = pr;
@@ -279,9 +278,14 @@
       const kmi = sessionStorage.getItem(K.kmI); if(kmi) kmInicial.value = kmi;
       const kmf = sessionStorage.getItem(K.kmF); if(kmf) kmFinal.value = kmf;
 
-      inicioAutoAtivo = true;   // ao abrir a tela o inicial volta a ser automático
+      inicioAutoAtivo = true;
       atualizarInicioAutomatico();
+
+      // render e também garante contador atualizado ao abrir
       renderLista();
+      const arrNow = getLista();
+      sessionStorage.setItem('viaturaCount', String(arrNow.length));
+      sessionStorage.setItem('viaturas', JSON.stringify(arrNow));
     }
 
     function salvarCamposBasicos(){
@@ -298,7 +302,7 @@
 
     /* ===== Início automático ===== */
     function atualizarInicioAutomatico(){
-      if(!inicioAutoAtivo) return;                       // <- não atualiza quando desligado
+      if(!inicioAutoAtivo) return;
       if(usandoManualInicio){
         inicioTxt.textContent=toDisplay(inicioDate);
         inicioTxt.classList.add('active'); inicioTxt.classList.remove('hint');
@@ -425,7 +429,7 @@
 
     [...papelRadios].forEach(r=> r.addEventListener('change', salvarCamposBasicos));
 
-    /* Lista estilo fatos-complementares */
+    /* ===== Lista ===== */
     function renderLista(){
       const arr = getLista();
       viListEl.innerHTML = '';
@@ -463,30 +467,23 @@
       }
     }
 
-    /* Limpar tudo após adicionar */
     function limparTodosCamposEditaveis(){
-      // textos
       prefixo.value = '';
       kmInicial.value = '';
       kmFinal.value = '';
-
-      // radios
       [...papelRadios].forEach(r=> r.checked = false);
 
-      // INICIAL: desliga auto e mostra Data/Hora
       inicioAutoAtivo = false;
       usandoManualInicio = false;
       inicioDate = null;
       inicioTxt.textContent = 'Data/Hora';
       inicioTxt.classList.add('hint'); inicioTxt.classList.remove('active');
 
-      // demais datas
       chegadaDate = null; dpDate=null; finalDate=null;
       chegadaTxt.textContent='Data/Hora'; chegadaTxt.classList.add('hint'); chegadaTxt.classList.remove('active');
       dpTxt.textContent='Data/Hora'; dpTxt.classList.add('hint'); dpTxt.classList.remove('active');
       finalTxt.textContent='Data/Hora'; finalTxt.classList.add('hint'); finalTxt.classList.remove('active');
 
-      // limpar persistência
       sessionStorage.setItem(K.prefixo,'');
       sessionStorage.setItem(K.papel,'');
       sessionStorage.setItem(K.kmI,'');
@@ -531,6 +528,9 @@
       const arr = getLista().filter(x=>x.id!==id);
       setLista(arr);
       renderLista();
+      // atualiza contador após excluir
+      sessionStorage.setItem('viaturaCount', String(arr.length));
+      sessionStorage.setItem('viaturas', JSON.stringify(arr));
       if(editId===id){
         editId=null;
         btnAdicionar.textContent='ADICIONAR';
@@ -544,11 +544,18 @@
       if(!prefixo.value.trim()) { alert('Informe o PREFIXO da viatura.'); prefixo.focus(); return false; }
       if(!papelSel){ alert('Selecione se a viatura é ATENDENTE ou APOIO.'); return false; }
       if(!inicioDate){ alert('Defina a data/hora INICIAL.'); return false; }
-      if(!dpDate){ alert('Defina a CHEGADA DP.'); return false; }
+      // CHEGADA DP é OPCIONAL
       if(!finalDate){ alert('Defina a data/hora FINAL.'); return false; }
-      if(chegadaDate && inicioDate && chegadaDate < inicioDate){ alert('CHEGADA não pode ser anterior ao INICIAL.'); return false; }
-      if(dpDate && chegadaDate && dpDate < chegadaDate){ alert('CHEGADA DP não pode ser anterior à CHEGADA.'); return false; }
-      if(finalDate < (dpDate || chegadaDate || inicioDate)){ alert('FINAL não pode ser anterior à CHEGADA DP/CHEGADA/INICIAL.'); return false; }
+
+      if(chegadaDate && inicioDate && chegadaDate < inicioDate){
+        alert('CHEGADA não pode ser anterior ao INICIAL.'); return false;
+      }
+      if(dpDate && chegadaDate && dpDate < chegadaDate){
+        alert('CHEGADA DP não pode ser anterior à CHEGADA.'); return false;
+      }
+      if(finalDate < (dpDate || chegadaDate || inicioDate)){
+        alert('FINAL não pode ser anterior à CHEGADA DP/CHEGADA/INICIAL.'); return false;
+      }
       return true;
     }
 
@@ -577,18 +584,28 @@
       }
       setLista(arr);
       renderLista();
+      // atualiza contador após adicionar/atualizar
+      sessionStorage.setItem('viaturaCount', String(arr.length));
+      sessionStorage.setItem('viaturas', JSON.stringify(arr));
     }
 
     function salvarViatura(){
       if(!validarObrigatorios()) return false;
       salvarCamposBasicos();
       salvarViaturaNaLista();
-      limparTodosCamposEditaveis();   // limpa tudo após adicionar
+      limparTodosCamposEditaveis();
       return true;
     }
 
     btnAdicionar.addEventListener('click', salvarViatura);
-    document.getElementById('btnBack').addEventListener('click', ()=>{ salvarCamposBasicos(); window.location.href='historico.html'; });
+    document.getElementById('btnBack').addEventListener('click', ()=>{ 
+      salvarCamposBasicos(); 
+      // garante contador atualizado ao sair
+      const arr = getLista();
+      sessionStorage.setItem('viaturaCount', String(arr.length));
+      sessionStorage.setItem('viaturas', JSON.stringify(arr));
+      window.location.href='historico.html'; 
+    });
 
     /* Init */
     restore();

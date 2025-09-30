@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Endereço</title>
+  <style>
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f1f1;
+      display:flex;justify-content:center;align-items:center;min-height:100dvh;
+    }
+    .container{
+      background:#fff;width:100%;max-width:400px;height:100dvh;
+      display:flex;flex-direction:column;
+    }
+
+    /* Topbar */
+    .topbar{
+      background:#333;color:#fff;display:flex;align-items:center;justify-content:space-between;
+      padding:8px;font-weight:bold;flex-shrink:0;font-size:14px;
+    }
+    .topbar .title{
+      flex:1;text-align:center;letter-spacing:.5px;text-transform:uppercase;
+    }
+    .icon-btn{width:24px;height:24px;border:none;background:transparent;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+    .icon{width:18px;height:18px;display:block}
+
+    /* Conteúdo */
+    .content{flex:1;overflow-y:auto;padding:12px 16px 18px 16px}
+
+    .section-title{
+      text-align:center;font-weight:bold;color:#333;letter-spacing:.3px;
+      margin:6px 0 12px 0;
+    }
+
+    label{display:block;font-size:12px;color:#2f6f73;margin:10px 0 6px}
+    input, select{
+      width:100%;padding:10px 12px;border:1px solid #ccc;border-radius:6px;background:#fff;font-size:14px;outline:none;
+    }
+    input:focus, select:focus{border-color:#888}
+
+    .row-2{display:flex;gap:14px}
+    .row-2>.col{flex:1}
+    .row-3{display:flex;gap:10px}
+    .row-3>.col{flex:1}
+
+    .msg{font-size:12px;color:#888;margin-top:6px}
+    .error{color:#b00020}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Topbar -->
+    <div class="topbar">
+      <button class="icon-btn" aria-label="Voltar" onclick="history.back()">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      <div class="title">ENDEREÇO</div>
+      <button class="icon-btn" aria-label="Concluir" id="btnSave">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 6L9 17l-5-5"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="content">
+      <div class="section-title">COMERCIAL</div>
+
+      <!-- País + UF -->
+      <div class="row-2">
+        <div class="col">
+          <label for="pais">País</label>
+          <select id="pais">
+            <option value="" selected disabled>Selecione...</option>
+          </select>
+          <div id="paisMsg" class="msg"></div>
+        </div>
+        <div class="col">
+          <label for="uf">UF/Estado</label>
+          <select id="uf" disabled>
+            <option value="" selected disabled>Selecione o país</option>
+          </select>
+          <div id="ufMsg" class="msg"></div>
+        </div>
+      </div>
+
+      <!-- Cidade -->
+      <label for="cidade">Cidade</label>
+      <select id="cidade" disabled>
+        <option value="" selected disabled>Selecione a UF</option>
+      </select>
+      <div id="cidMsg" class="msg"></div>
+
+      <!-- Logradouro + Nº -->
+      <div class="row-2">
+        <div class="col">
+          <label for="logradouro">Logradouro</label>
+          <input id="logradouro" type="text">
+        </div>
+        <div class="col" style="max-width:110px">
+          <label for="numero">Nº</label>
+          <input id="numero" type="text" inputmode="numeric">
+        </div>
+      </div>
+
+      <!-- Complemento -->
+      <label for="complemento">Complemento</label>
+      <input id="complemento" type="text">
+
+      <!-- Bairro -->
+      <label for="bairro">Bairro</label>
+      <input id="bairro" type="text">
+
+      <!-- CEP -->
+      <label for="cep">CEP</label>
+      <input id="cep" type="text" inputmode="numeric" placeholder="00000-000">
+
+      <!-- DDD / Telefone / Ramal -->
+      <div class="row-3">
+        <div class="col" style="max-width:70px">
+          <label for="dddTel">DDD</label>
+          <input id="dddTel" type="text" inputmode="numeric" placeholder="00" maxlength="2">
+        </div>
+        <div class="col">
+          <label for="tel">Telefone</label>
+          <input id="tel" type="text" inputmode="numeric" placeholder="0000-0000">
+        </div>
+        <div class="col" style="max-width:100px">
+          <label for="ramal">Ramal</label>
+          <input id="ramal" type="text" inputmode="numeric">
+        </div>
+      </div>
+
+      <!-- DDD / Celular -->
+      <div class="row-2">
+        <div class="col" style="max-width:70px">
+          <label for="dddCel">DDD</label>
+          <input id="dddCel" type="text" inputmode="numeric" placeholder="00" maxlength="2">
+        </div>
+        <div class="col">
+          <label for="cel">Celular</label>
+          <input id="cel" type="text" inputmode="numeric" placeholder="00000-0000">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* === Máscaras e utilidades === */
+    const onlyDigits = s => (s||'').replace(/\D/g,'');
+
+    const cepEl=document.getElementById('cep');
+    cepEl.addEventListener('input',e=>{
+      let v=onlyDigits(e.target.value).slice(0,8);
+      if(v.length>5) v=v.slice(0,5)+'-'+v.slice(5);
+      e.target.value=v;
+    });
+    ['dddTel','dddCel'].forEach(id=>{
+      document.getElementById(id).addEventListener('input',e=>{
+        e.target.value=onlyDigits(e.target.value).slice(0,2);
+      });
+    });
+    tel.addEventListener('input',e=>{
+      let v=onlyDigits(e.target.value).slice(0,8);
+      if(v.length>4) v=v.slice(0,4)+'-'+v.slice(4);
+      e.target.value=v;
+    });
+    cel.addEventListener('input',e=>{
+      let v=onlyDigits(e.target.value).slice(0,9);
+      if(v.length>5) v=v.slice(0,5)+'-'+v.slice(5);
+      e.target.value=v;
+    });
+    ['numero','ramal'].forEach(id=>{
+      document.getElementById(id).addEventListener('input',e=>{
+        e.target.value=onlyDigits(e.target.value);
+      });
+    });
+
+    /* === HÍBRIDO: IBGE + Local === */
+    const paisSel=document.getElementById('pais');
+    const ufSel=document.getElementById('uf');
+    const cidSel=document.getElementById('cidade');
+
+    const FOREIGN_DB={
+      "Argentina":{"Buenos Aires":["La Plata","Mar del Plata"],"Córdoba":["Córdoba","Río Cuarto"]},
+      "Uruguai":{"Montevideo":["Montevideo"],"Maldonado":["Punta del Este"]},
+      "Paraguai":{"Central":["Asunción"],"Alto Paraná":["Ciudad del Este"]}
+    };
+    const UF_ID={};
+
+    init();
+
+    async function init(){
+      await carregarPaises();
+      await preloadUFsBR();
+      resetUF(true);
+      resetCidade(true);
+    }
+    async function carregarPaises(){
+      try{
+        const r=await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/paises');
+        const data=await r.json();
+        data.sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
+        paisSel.innerHTML='<option value="" selected disabled>Selecione...</option>';
+        data.forEach(p=>{
+          const o=document.createElement('option');
+          o.value=p.id;o.textContent=p.nome;
+          paisSel.appendChild(o);
+        });
+      }catch{paisSel.innerHTML='<option>Erro</option>';}
+    }
+    async function preloadUFsBR(){
+      const r=await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados');
+      const data=await r.json();
+      data.forEach(e=>UF_ID[e.sigla]=e.id);
+    }
+    function resetUF(dis){
+      ufSel.disabled=dis;
+      ufSel.innerHTML=`<option value="" selected disabled>${dis?'Selecione o país':'Selecione...'}</option>`;
+    }
+    function resetCidade(dis){
+      cidSel.disabled=dis;
+      cidSel.innerHTML=`<option value="" selected disabled>${dis?'Selecione a UF':'Selecione...'}</option>`;
+    }
+
+    paisSel.addEventListener('change',()=>{
+      const name=paisSel.options[paisSel.selectedIndex].textContent;
+      const isBrasil=/brasil/i.test(name);
+      resetUF(false);resetCidade(true);
+      if(isBrasil){
+        ufSel.innerHTML='<option value="" selected disabled>Selecione...</option>';
+        Object.keys(UF_ID).sort().forEach(sig=>{
+          const o=document.createElement('option');o.value=sig;o.textContent=sig;ufSel.appendChild(o);
+        });
+      }else{
+        const states=Object.keys(FOREIGN_DB[name]||{});
+        if(states.length===0){resetUF(true);return;}
+        ufSel.innerHTML='<option value="" selected disabled>Selecione...</option>';
+        states.forEach(st=>{
+          const o=document.createElement('option');o.value=st;o.textContent=st;ufSel.appendChild(o);
+        });
+      }
+    });
+
+    ufSel.addEventListener('change',async()=>{
+      const name=paisSel.options[paisSel.selectedIndex].textContent;
+      const isBrasil=/brasil/i.test(name);
+      resetCidade(false);
+      if(isBrasil){
+        const id=UF_ID[ufSel.value];
+        const r=await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${id}/municipios`);
+        const data=await r.json();
+        cidSel.innerHTML='<option value="" selected disabled>Selecione...</option>';
+        data.forEach(m=>{
+          const o=document.createElement('option');o.value=m.nome;o.textContent=m.nome;cidSel.appendChild(o);
+        });
+      }else{
+        const cities=(FOREIGN_DB[name]&&FOREIGN_DB[name][ufSel.value])||[];
+        cidSel.innerHTML='<option value="" selected disabled>Selecione...</option>';
+        cities.forEach(c=>{
+          const o=document.createElement('option');o.value=c;o.textContent=c;cidSel.appendChild(o);
+        });
+      }
+    });
+  </script>
+</body>
+</html>

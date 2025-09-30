@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Características Especiais</title>
+  <style>
+    *{box-sizing:border-box}
+    html, body { height:100%; }
+    body{
+      margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f1f1;
+      display:flex;justify-content:center;align-items:center;min-height:100dvh;
+    }
+    .container{
+      background:#fff;width:100%;max-width:400px;height:100dvh;
+      display:flex;flex-direction:column;
+    }
+
+    /* Topbar */
+    .topbar{
+      background:#333;color:#fff;display:flex;align-items:center;justify-content:space-between;
+      padding:8px;font-weight:bold;flex-shrink:0;font-size:14px;
+    }
+    .topbar .title{ text-transform:uppercase; letter-spacing:.5px; flex:1; text-align:center; }
+    .icon-btn{width:24px;height:24px;border:none;background:transparent;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+    .icon{width:18px;height:18px;display:block}
+
+    /* Conteúdo */
+    .content{flex:1;overflow-y:auto;padding:12px 16px 16px 16px}
+
+    label{display:block;font-size:12px;color:#2f6f73;margin:10px 0 6px}
+    input{
+      width:100%; padding:10px 12px; border:1px solid #ccc; border-radius:6px;
+      background:#fff; font-size:14px; outline:none;
+    }
+    input:focus{border-color:#888}
+
+    .section-title{
+      text-align:center;font-weight:bold;color:#333;letter-spacing:.3px;margin:14px 0 10px 0;
+    }
+
+    .primary{
+      width:100%;border:none;background:#2f6f73;color:#fff;
+      padding:10px 12px;border-radius:6px;font-weight:bold;letter-spacing:.3px;
+      cursor:pointer;font-size:14px;
+    }
+
+    /* Lista de características adicionais */
+    .extra-list{list-style:none;padding:0;margin:10px 0 0 0}
+    .extra-list li{
+      display:flex;justify-content:space-between;align-items:center;
+      border:1px solid #ddd;border-radius:6px;padding:8px 10px;margin-top:6px;font-size:14px;
+    }
+    .rm{
+      border:1px solid #ccc;background:#fff;border-radius:6px;padding:4px 8px;
+      font-weight:bold;cursor:pointer;font-size:12px;color:#333;
+    }
+    .empty{
+      color:#666;font-size:13px;text-align:center;margin-top:8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Topbar -->
+    <div class="topbar">
+      <button class="icon-btn" aria-label="Voltar" onclick="history.back()">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      <div class="title">CARACTERÍSTICAS ESPECIAIS</div>
+      <button class="icon-btn" aria-label="Concluir" id="btnSave">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 6L9 17l-5-5"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="content">
+      <label for="alcunha1">Alcunha</label>
+      <input id="alcunha1" type="text" data-field>
+
+      <label for="alcunha2">Alcunha 2</label>
+      <input id="alcunha2" type="text" data-field>
+
+      <label for="alcunha3">Alcunha 3</label>
+      <input id="alcunha3" type="text" data-field>
+
+      <div class="section-title">CARACTERÍSTICA ESPECIAL</div>
+      <button class="primary" id="btnAdd" type="button">ADICIONAR</button>
+
+      <ul id="extraList" class="extra-list" aria-live="polite"></ul>
+      <div id="emptyMsg" class="empty" hidden>Nenhuma característica especial adicionada.</div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'caracteristicas:especiais:v1';
+    const inputs = Array.from(document.querySelectorAll('input[data-field]'));
+    const listEl = document.getElementById('extraList');
+    const emptyMsg = document.getElementById('emptyMsg');
+
+    function renderEmpty(){
+      emptyMsg.hidden = listEl.children.length > 0;
+    }
+
+    function load(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw){ renderEmpty(); return; }
+        const data = JSON.parse(raw);
+        (['alcunha1','alcunha2','alcunha3']).forEach(id=>{
+          if(data[id] !== undefined) document.getElementById(id).value = data[id];
+        });
+        (data.extra||[]).forEach(addItem);
+        renderEmpty();
+      }catch(e){ renderEmpty(); }
+    }
+
+    function save(){
+      const data = {
+        alcunha1: document.getElementById('alcunha1').value,
+        alcunha2: document.getElementById('alcunha2').value,
+        alcunha3: document.getElementById('alcunha3').value,
+        extra: Array.from(listEl.querySelectorAll('li .txt')).map(el=>el.textContent)
+      };
+      try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }catch(e){}
+    }
+
+    function addItem(text){
+      const li=document.createElement('li');
+      const span=document.createElement('span'); span.className='txt'; span.textContent=text;
+      const rm=document.createElement('button'); rm.className='rm'; rm.type='button'; rm.textContent='Remover';
+      rm.addEventListener('click', ()=>{ li.remove(); save(); renderEmpty(); });
+      li.appendChild(span); li.appendChild(rm);
+      listEl.appendChild(li);
+    }
+
+    // Inputs salvam automaticamente
+    inputs.forEach(i=>i.addEventListener('input', save));
+
+    // Botão ADICIONAR agora abre a tela detalhada
+    document.getElementById('btnAdd').addEventListener('click', ()=>{
+      // garante salvar alcunhas antes de navegar
+      save();
+      window.location.href = 'caracteristicas-especiais1.html';
+    });
+
+    // Botão concluir (apenas garante persistência)
+    document.getElementById('btnSave').addEventListener('click', ()=>{
+      save();
+      alert('Características especiais salvas.');
+    });
+
+    load();
+  </script>
+</body>
+</html>

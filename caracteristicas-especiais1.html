@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nova Característica Especial</title>
+  <style>
+    *{box-sizing:border-box}
+    html, body { height:100%; }
+    body{
+      margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f1f1;
+      display:flex;justify-content:center;align-items:center;min-height:100dvh;
+    }
+    .container{
+      background:#fff;width:100%;max-width:400px;height:100dvh;
+      display:flex;flex-direction:column;
+    }
+
+    /* Topbar */
+    .topbar{
+      background:#333;color:#fff;display:flex;align-items:center;justify-content:space-between;
+      padding:8px;font-weight:bold;flex-shrink:0;font-size:14px;
+    }
+    .topbar .title{
+      text-transform:uppercase; letter-spacing:.5px; flex:1; text-align:center;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .icon-btn{width:24px;height:24px;border:none;background:transparent;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+    .icon{width:18px;height:18px;display:block}
+
+    /* Conteúdo */
+    .content{flex:1;overflow-y:auto;padding:12px 16px 16px 16px}
+
+    label{display:block;font-size:12px;color:#2f6f73;margin:8px 0 4px}
+    .req::before{content:"* "; color:#d00; font-weight:bold}
+    select, textarea{
+      width:100%; border:1px solid #ccc; border-radius:6px; background:#fff; outline:none;
+      font-size:14px;
+    }
+    select{ padding:6px 10px; }
+    textarea{ padding:10px 12px; min-height:110px; resize:vertical; }
+
+    /* Drop-up simples */
+    select.drop-up{ direction: rtl; }
+    select.drop-up option{ direction:ltr; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Topbar -->
+    <div class="topbar">
+      <button class="icon-btn" aria-label="Voltar" id="btnBack">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      <div class="title">NOVA CARACTERÍSTICA...</div>
+      <button class="icon-btn" aria-label="Salvar" id="btnSave">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 6L9 17l-5-5"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="content">
+      <label class="req" for="tipo">Tipo</label>
+      <select id="tipo" data-field required>
+        <option value="" selected disabled>Selecione...</option>
+        <option>Vício</option>
+        <option>Tatuagem</option>
+        <option>Cicatriz</option>
+        <option>Amputação</option>
+        <option>Característica Própria</option>
+        <option>Sinal Particular</option>
+        <option>Local Habitual</option>
+      </select>
+
+      <label class="req" for="descricao">Descrição</label>
+      <select id="descricao" data-field required>
+        <option value="" selected disabled>Selecione...</option>
+        <!-- conforme a imagem: regiões do corpo -->
+        <option>Cabeça</option>
+        <option>Rosto</option>
+        <option>Pescoco</option>
+        <option>Tronco - frente</option>
+        <option>Tronco - costa</option>
+        <option>Tronco - lateral</option>
+        <option>Mão</option>
+        <option>Braço</option>
+        <option>Pé</option>
+        <option>Perna</option>
+        <option>Nádegas</option>
+        <option>Seios</option>
+        <option>Ombro</option>
+        <option>Cotovelo</option>
+        <option>Joelho</option>
+        <option>Costela</option>
+        <option>Abdômen</option>
+        <option>Dorso</option>
+        <option>Pescoço (nuca)</option>
+        <option>Outros</option>
+      </select>
+
+      <label for="obs">Observação</label>
+      <textarea id="obs" placeholder=""></textarea>
+    </div>
+  </div>
+
+  <script>
+    // Voltar para a lista principal de características especiais
+    document.getElementById('btnBack').addEventListener('click', ()=>{
+      window.location.href = 'caracteristicas-especiais.html';
+    });
+
+    // “Abrir para cima” caso falte espaço
+    const selects = document.querySelectorAll('select[data-field]');
+    selects.forEach(f=>{
+      f.addEventListener('mousedown', ()=>{
+        const rect = f.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        if(spaceBelow < 200) f.classList.add('drop-up');
+        else f.classList.remove('drop-up');
+      });
+      f.addEventListener('blur', ()=> f.classList.remove('drop-up'));
+    });
+
+    // Salvar no mesmo storage usado em caracteristicas-especiais.html
+    const STORAGE_KEY = 'caracteristicas:especiais:v1';
+    document.getElementById('btnSave').addEventListener('click', ()=>{
+      const tipo = document.getElementById('tipo').value;
+      const desc = document.getElementById('descricao').value;
+      const obs  = document.getElementById('obs').value.trim();
+
+      if(!tipo || !desc){
+        alert('Preencha os campos obrigatórios: Tipo e Descrição.');
+        return;
+      }
+
+      // Carrega, anexa e salva
+      let payload = { alcunha1:'', alcunha2:'', alcunha3:'', extra:[] };
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(raw) payload = Object.assign(payload, JSON.parse(raw));
+      }catch(e){}
+
+      const texto = `${tipo} — ${desc}${obs ? ' ('+obs+')' : ''}`;
+      payload.extra = Array.isArray(payload.extra) ? payload.extra : [];
+      payload.extra.push(texto);
+
+      try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); }catch(e){}
+
+      // Volta para a tela de lista
+      window.location.href = 'caracteristicas-especiais.html';
+    });
+  </script>
+</body>
+</html>

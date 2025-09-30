@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Características - Rosto</title>
+  <style>
+    *{box-sizing:border-box}
+    html, body { height:100%; }
+    body{
+      margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f1f1;
+      display:flex;justify-content:center;align-items:center;min-height:100dvh;
+    }
+    .container{
+      background:#fff;width:100%;max-width:400px;height:100dvh;
+      display:flex;flex-direction:column;
+    }
+
+    /* Topbar */
+    .topbar{
+      background:#333;color:#fff;display:flex;align-items:center;justify-content:space-between;
+      padding:8px;font-weight:bold;flex-shrink:0;font-size:14px;
+    }
+    .topbar .title{ text-transform:uppercase; letter-spacing:.5px; flex:1; text-align:center; }
+    .icon-btn{width:24px;height:24px;border:none;background:transparent;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+    .icon{width:18px;height:18px;display:block}
+
+    /* Conteúdo */
+    .content{flex:1;overflow:hidden;padding:12px 16px 10px 16px}
+    .section-title{ text-align:center; color:#333; font-weight:bold; margin:6px 0 10px 0; letter-spacing:.3px; }
+
+    label{display:block;font-size:12px;color:#2f6f73;margin:8px 0 4px}
+    select{
+      width:100%; padding:6px 10px;
+      border:1px solid #ccc; border-radius:6px;
+      background:#fff; font-size:14px; outline:none;
+    }
+    select:focus{border-color:#888}
+    .fields{ display:flex; flex-direction:column; }
+
+    /* Pager */
+    .pager-dots{
+      display:flex;justify-content:center;align-items:center;gap:8px;padding:8px 0 10px;
+      flex-shrink:0;
+    }
+    .pager-dot{
+      display:inline-block;width:8px;height:8px;border-radius:50%;
+      background:#cdd2d3;text-decoration:none;
+    }
+    .pager-dot:hover{ filter:brightness(0.9); }
+    .pager-dot.active{ background:#2f6f73; }
+
+    /* “Abrir para cima” */
+    select.drop-up{ direction: rtl; }
+    select.drop-up option{ direction:ltr; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Topbar -->
+    <div class="topbar">
+      <button class="icon-btn" aria-label="Voltar" onclick="history.back()">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      <div class="title">CARACTERÍSTICAS</div>
+      <button class="icon-btn" aria-label="Concluir" id="btnSave">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 6L9 17l-5-5"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="content">
+      <div class="section-title">ROSTO</div>
+
+      <div class="fields">
+        <label for="tipoRosto">Tipo</label>
+        <select id="tipoRosto" data-field>
+          <option value="" selected disabled>Selecione...</option>
+          <option>Oval</option><option>Redondo</option><option>Fino</option><option>Achatado</option><option>Quadrado</option>
+        </select>
+
+        <label for="sobrancelha">Sobrancelha</label>
+        <select id="sobrancelha" data-field>
+          <option value="" selected disabled>Selecione...</option>
+          <option>Fina</option><option>Grossa</option><option>Unida</option><option>Normal</option>
+          <option>Aparada</option><option>Pintada</option><option>Raspada</option>
+        </select>
+
+        <label for="olhos">Olhos</label>
+        <select id="olhos" data-field>
+          <option value="" selected disabled>Selecione...</option>
+          <option>Fundos</option><option>Saltados</option><option>Rasgados</option><option>Normais</option><option>Diferentes entre si</option>
+        </select>
+
+        <label for="nariz">Nariz</label>
+        <select id="nariz" data-field>
+          <option value="" selected disabled>Selecione...</option>
+          <option>Achatado</option><option>Arrebitado</option><option>Comprido</option><option>Curto</option><option>Normal</option><option>Afilado</option>
+        </select>
+
+        <label for="barba">Barba</label>
+        <select id="barba" data-field>
+          <option value="" selected disabled>Selecione...</option>
+          <option>Imberbe</option><option>Raspada</option><option>Por raspar</option><option>Barbudo</option><option>Cavanhaque</option><option>Costeleta</option>
+        </select>
+
+        <label for="bigode">Bigode</label>
+        <select id="bigode" data-field>
+          <option value="" selected disabled>Selecione...</option>
+          <option>Não tem</option><option>Fino</option><option>Farto</option><option>Aparado</option><option>Central</option><option>Laterais</option>
+        </select>
+
+        <label for="labios">Lábios</label>
+        <select id="labios" data-field>
+          <option value="" selected disabled>Selecione...</option>
+          <option>Grossos</option><option>Finos</option><option>Normais</option>
+        </select>
+
+        <label for="dentes">Dentes</label>
+        <select id="dentes" data-field>
+          <option value="" selected disabled>Selecione...</option>
+          <option>Dentes postiços</option><option>Separados</option><option>Falta dente(s)</option>
+          <option>Dente(s) ouro</option><option>Defeituoso</option><option>Dentuço</option>
+          <option>Normais</option><option>Desdentado</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Pager: 3 pontos, primeiro ativo -->
+    <div class="pager-dots" aria-label="Progresso">
+      <a class="pager-dot active" href="caracteristicas1.html" aria-label="Página 1"></a>
+      <a class="pager-dot" href="caracteristicas2.html" aria-label="Página 2"></a>
+      <a class="pager-dot" href="caracteristicas3.html" aria-label="Página 3"></a>
+    </div>
+  </div>
+
+  <script>
+    /* ===== Persistência ===== */
+    const STORAGE_KEY = 'caracteristicas:rosto:v1';
+    const fields = Array.from(document.querySelectorAll('select[data-field]'));
+
+    function saveAll(){
+      const data = {};
+      fields.forEach(f => data[f.id] = f.value);
+      try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }catch(e){}
+    }
+    function loadAll(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw) return;
+        const data = JSON.parse(raw);
+        fields.forEach(f => { if(data[f.id]) f.value = data[f.id]; });
+      }catch(e){}
+    }
+
+    /* ===== Drop-up simples ===== */
+    fields.forEach(f=>{
+      f.addEventListener('mousedown', ()=>{
+        const rect = f.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        if(spaceBelow < 200) f.classList.add('drop-up');
+        else f.classList.remove('drop-up');
+      });
+      f.addEventListener('change', saveAll);
+      f.addEventListener('blur', ()=> f.classList.remove('drop-up'));
+    });
+
+    document.getElementById('btnSave').addEventListener('click', ()=>{
+      saveAll();
+      alert('Características salvas.');
+    });
+
+    loadAll();
+  </script>
+</body>
+</html>
